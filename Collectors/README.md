@@ -32,8 +32,8 @@ Usage examples:
 
 ### Google Workspace Collector
 
-For detailed information regarding Google Workspace or Cloud Identity evidence collection, visit [reference documentation](./Collectors/collectors/gw/README.md).
+For detailed information regarding Google Workspace or Cloud Identity evidence collection, visit [reference documentation](./collectors/gw/README.md).
 
 ### Google Cloud Platform Collector
 
-For detailed information regarding GCP evidence collection, visit [reference documentation](./Collectors/collectors/gcp/README.md).
+For detailed information regarding GCP evidence collection, visit [reference documentation](./collectors/gcp/README.md).
