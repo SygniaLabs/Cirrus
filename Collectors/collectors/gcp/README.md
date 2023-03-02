@@ -1,6 +1,6 @@
 # Cirrus - Google Cloud Platform Collector
 
-## Capabilities<hr>
+## Capabilities
 Cirrus Google Cloud Platform (GCP) Collector is a command-line tool written in Python that utilizes REST APIs 
 to collect forensic artifacts from GCP for incident response, threat hunting, and increasing security posture. The script
 collections log and configuration data:
@@ -55,7 +55,7 @@ script allows users to collect preconfigured configurations against any number o
 | All configurations (all 4)                                                                                  | all_configs              |
 
 
-## Usage<hr>
+## Usage
 
 ### Prerequisites
 To execute the script, we need to have a service account key that has been authorized with the appropriate IAM roles 
@@ -182,7 +182,7 @@ Example of collecting a resource hierarchy map, role bindings, and service accou
 ./cirrus.py gcp --key-file creds.json configurations --organization-id OID --configs all_configs
 ```
 
-## Troubleshooting<hr>
+## Troubleshooting
 
 ### VPC Service Controls
 **Problem:** VPC Service Control restrictions may hinder the ability to collect configuration or log information. 
@@ -196,13 +196,13 @@ one of the following solutions:
 2. Temporarily remove targeted service from “Restricted Services” list **(last resort)**
 3. Temporarily remove targeted project from “Projects to protect” list **(last resort)**
 
-## Reference Links<hr>
+## Reference Links
 | **API**                   | **Link**                                                     |
 |---------------------------|--------------------------------------------------------------|
 | Cloud Logging API         | https://cloud.google.com/logging/docs/reference/v2/rest      |
 | Cloud Asset Inventory API | https://cloud.google.com/asset-inventory/docs/reference/rest |
 
-## Appendix A<hr>
+## Appendix A
 
 ### Required Roles
 

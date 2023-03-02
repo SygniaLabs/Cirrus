@@ -2,7 +2,7 @@
 
 ![cirrus_image](./cirrus.png)
 
-## Overview<hr>
+## Overview
 
 Cirrus is a command-line tool written in Python to facilitate environment access and evidence collection across 
 Google Cloud. Cirrus has been designed to support incident response and threat hunting operations. Sygnia 
@@ -10,7 +10,7 @@ created Cirrus and an associated blog series ([Foundations](https://blog.sygnia.
 & [Forensic Artifacts](https://blog.sygnia.co/incident-response-in-google-cloud-forensic-artifacts)) to help solve gaps
 with incident response in Google Cloud.
 
-## Capabilities<hr>
+## Capabilities
 
 Cirrus is composed of two scripts:
 
@@ -31,6 +31,6 @@ To prepare a Google Cloud environment for evidence collection, reference [Assist
 
 To collect evidence from Google Cloud, reference [Collector documentation](./Collectors/README.md).
 
-## Demo<hr>
+## Demo
 
 Link to Sygnia's webinar recording will be provided soon!

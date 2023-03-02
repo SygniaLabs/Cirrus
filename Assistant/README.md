@@ -1,13 +1,13 @@
 # Cirrus - Assistant
 
-## Overview<hr>
+## Overview
 The Cirrus Assistant is a command-line tool that provides scalable access to a Google Cloud 
 environment. Based on the Google project [create-service-account](https://github.com/google/create-service-account), 
 Cirrus Assistant automates all steps required for obtaining a service account key file with the required permissions and 
 access for evidence acquisition. The generated service account key can then be used to programmatically access 
 data in Google Cloud. This script has been designed for seamless integration with the [Cirrus Collector](../Collectors/README.md).
 
-## Capabilities<hr>
+## Capabilities
 
 ### Setup Mode
 
@@ -31,7 +31,7 @@ following steps are accomplished by Assistant during cleanup:
 1. Remove IAM role bindings
 2. Delete project(s) generated from setup
 
-## Usage<hr>
+## Usage
 
 ### Prerequisites
 

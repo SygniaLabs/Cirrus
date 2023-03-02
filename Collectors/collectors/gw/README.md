@@ -1,6 +1,6 @@
 # Cirrus - Google Workspace Collector
 
-## Capabilities<hr>
+## Capabilities
 Cirrus Google Workspace Collector is a command-line tool written in Python that utilizes REST APIs 
 to collect forensic artifacts from Google Workspace or Cloud Identity for incident response, threat hunting, and 
 increasing security posture. The script collects configurations, logs, and data.
@@ -77,7 +77,7 @@ To collect the information, the script delegates each user that has Gmail access
 | **Message History**      | Lists a certain change to a given mailbox by its history id. Each Messages has its current history id that indicates the last change that was made to it.                                                                                                            |
 | **Get Attachment**       | Gets an attachments from a message by the attachment id and the relevant message id.                                                                                                                                                                                 |
 
-## Usage<hr>
+## Usage
 
 ### Prerequisites
 To execute the script, we need to have a service account key authorized with the appropriate access scopes. APIs also need to be enabled in the 
@@ -198,7 +198,7 @@ optional arguments:
 
 
 
-## References Links<hr>
+## References Links
 | description                              | link                                                                              |
 |------------------------------------------|-----------------------------------------------------------------------------------|
 | Admin Directory API                      | https://developers.google.cn/admin-sdk/directory/reference/rest                   |
@@ -211,7 +211,7 @@ optional arguments:
 | Cloud Shell Editor                       | https://shell.cloud.google.com/                                                   |
 | Gmail Search Langauge                    | https://support.google.com/mail/answer/7190?hl=en                                 |
 
-## Appendix A<hr>
+## Appendix A
 
 ### Required Access Scopes
 

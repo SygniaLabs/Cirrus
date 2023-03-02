@@ -1,16 +1,16 @@
 # Cirrus - Collector
 
-## Overview<hr>
+## Overview
 Cirrus Collector gathers forensic artifacts across a Google Cloud environment. 
 
-## Capabilities<hr>
+## Capabilities
 
 Cirrus Collector is a wrapper script that encloses two separate modules:
 
 1. **Google Workspace/Cloud Identity Collector**
 2. **Google Cloud Platform (GCP) Collector**
 
-## Usage<hr>
+## Usage
 
 ### Prerequisites
 
