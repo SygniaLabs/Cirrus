@@ -2,7 +2,7 @@
 
 ![cirrus_image](./cirrus.png)
 
-## Overview
+## Overview 
 
 Cirrus is a command-line tool written in Python to facilitate environment access and evidence collection across 
 Google Cloud. Cirrus has been designed to support incident response and threat hunting operations. Sygnia 
