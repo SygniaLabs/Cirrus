@@ -9,24 +9,26 @@ on whether GCP, GW, or both Google services are being investigated. The 'cleanup
 remove all traces of activity from 'setup' and evidence collection.
 """
 
+import argparse
+import asyncio
+import datetime
+import json
+import logging
 import os
 import re
 import sys
 import time
-import json
-import logging
-import asyncio
-import datetime
-import argparse
 import traceback
 import urllib.parse
-from httplib2 import Http
-from google_auth_httplib2 import Request
+
 from google.auth.exceptions import RefreshError
 from google.oauth2 import service_account
+from google_auth_httplib2 import Request
+from httplib2 import Http
 
 # CHANGE ME
-PROJECT_NAME = "sir"  # Name of project created in GCP environment (datetime appended). 1-10 lowercase letters and/or numbers!
+PROJECT_NAME = "sir"  # Name of project created in GCP environment (datetime appended). 1-10 lowercase letters and/or
+# numbers!
 
 # Tool & Validation constants
 SERVICE_ACCT_NAME = f"{PROJECT_NAME}-service-account"  # Name of service account generated in project
@@ -77,20 +79,22 @@ SUPPORTED_MODULES = ['logs', 'configurations', 'all']
 PROFILE = ["roles/logging.privateLogViewer", "roles/cloudasset.viewer"]
 
 
-def change_me_section_check():
+def change_me_section_check() -> None:
+    """Validates the project name in the "change me" section that the user might change. 
+    If the validation fails, the script exists with error code 1"""
     if not re.match(PROJECT_NAME_PATT, PROJECT_NAME):
         logging.critical("project name must be no longer than 10 letters or numbers! Update the \"CHANGE ME\" "
                          "section in the script file and change the \"PROJECT NAME\" accordingly")
         sys.exit(1)
 
 
-def get_arguments():
-    """Obtains argparse command-line arguments"""
+def get_arguments() -> (argparse.ArgumentParser, argparse.Namespace):
+    """Creates the argparse and processes the command-line arguments"""
     parser = argparse.ArgumentParser('cirrus_assistant.py',
                                      description='Prepare a Google Cloud environment for incident response.')
     mode_subparser = parser.add_subparsers(dest='mode',
-                                           help='specify the Google Cloud environment configuration mode')
-    mode_subparser.required = True
+                                           help='specify the Google Cloud environment configuration mode',
+                                           required=True)
     setup_subparser = mode_subparser.add_parser('setup')
     cleanup_subparser = mode_subparser.add_parser('cleanup')
     # SETUP subparser
@@ -98,11 +102,11 @@ def get_arguments():
                                  help='specify a Google Cloud service to begin forensic artifact collection against: '
                                       '[gcp, gw, all]')
     setup_subparser.add_argument('--project-id', type=str, default=None,
-                                 help='in comma-delimited format (no spaces), specify project ID(s) to perform setup actions '
-                                      'against')
+                                 help='in comma-delimited format (no spaces), specify project ID(s) to perform setup '
+                                      'actions against')
     setup_subparser.add_argument('--folder-id', type=str, default=None,
-                                 help='in comma-delimited format (no spaces), specify folder ID(s) to perform setup actions '
-                                      'against')
+                                 help='in comma-delimited format (no spaces), specify folder ID(s) to perform setup '
+                                      'actions against')
     setup_subparser.add_argument('--organization-id', type=str, default=None,
                                  help='specify organization ID to perform setup actions against')
     # CLEANUP subparser
@@ -112,35 +116,38 @@ def get_arguments():
     return parser, parser.parse_args()
 
 
-def validate_arguments(parser, args):
-    """Validates argparse command-line arguments"""
-    if args.mode == 'setup':
-        if args.service != 'gcp' and args.service != 'gw' and args.service != 'all':
-            parser.error("specify one option with the '--service' flag: [gcp, gw, all]")
-        if args.service == 'gcp':
-            if args.project_id is None and args.folder_id is None and args.organization_id is None:
-                parser.error("specify at least one resource type with the corresponding resource ID(s): "
-                             "[--project-id ID1,ID2...] [--folder-id ID1,ID2...] [--organization-id ID]")
-            if ((args.project_id or args.folder_id) and args.organization_id) and args.profile:
-                parser.error("specify a single organization ID OR multiple project and folder ID(s)")
-        if args.service == 'all':
-            if args.project_id is None and args.folder_id is None and args.organization_id is None:
-                parser.error("specify at least one resource type with the corresponding resource ID(s): "
-                             "[--project-id ID1,ID2..] [--folder-id ID1,ID2..] [--organization-id ID]")
-            if ((args.project_id or args.folder_id) and args.organization_id) and args.profile:
-                parser.error("specify a single organization ID OR multiple project and folder ID(s)")
+def validate_arguments(parser: argparse.ArgumentParser, args: argparse.Namespace) -> None:
+    """Validates argparse command-line arguments
 
-    if args.mode == 'cleanup':
-        if args.service != 'gcp' and args.service != 'gw' and args.service != 'all':
-            parser.error("specify one option with the '--service' flag: [gcp, gw, all]")
+    @param parser: the Argparse object
+    @param args: the parsed args as given by parser.parse_args()
+    """
+
+    if args.service not in ['gcp', 'gw', 'all']:
+        parser.error("specify one option with the '--service' flag: [gcp, gw, all]")
+    if args.service in ['gcp', 'all'] and args.mode == 'setup':
+        if args.project_id is None and args.folder_id is None and args.organization_id is None:
+            parser.error("specify at least one resource type with the corresponding resource ID(s): "
+                         "[--project-id ID1,ID2...] [--folder-id ID1,ID2...] [--organization-id ID]")
+        if (args.project_id or args.folder_id) and args.organization_id:
+            parser.error("specify a single organization ID OR multiple project and folder ID(s)")
 
 
-async def retryable_command(command,
+async def retryable_command(command: str,
                             max_num_retries=3,
                             retry_delay=5,
                             suppress_errors=False,
-                            require_output=False):
-    """Executes a given command several times with delays and returns the stdout, stderr, and return code"""
+                            require_output=False) -> (bytes, bytes, int):
+    """
+    Executes a given command several times with delays and returns the stdout, stderr, and return code
+
+    @param command: the command to execute in Google Cloud Shell
+    @param max_num_retries: the maximum number of attempts to execute the command
+    @param retry_delay: how many seconds to sleep between each attempt
+    @param suppress_errors: Whether to supress errors or not
+    @param require_output: Whether to return the output of the command or not
+    """
+
     num_tries = 1
     while num_tries <= max_num_retries:
         logging.debug("Executing command (attempt %d): %s", num_tries, command)
@@ -169,18 +176,18 @@ async def retryable_command(command,
             sys.exit(return_code)
 
 
-def create_reference_folder():
+def create_reference_folder() -> None:
     """Creates folder for reference file output if it does not already exist"""
     try:
-        if not os.path.exists(DEFAULT_OUTPUT_FOLDER):
-            os.mkdir(DEFAULT_OUTPUT_FOLDER)
+        os.makedirs(DEFAULT_OUTPUT_FOLDER, exist_ok=True)
     except Exception as e:
         logging.info(f"Cannot create reference folder [{DEFAULT_OUTPUT_FOLDER}] due "
                      f"to the following error: {str(e)}")
 
 
-async def check_project_creation():
-    """Checks if script has already been run and project was successfully created"""
+async def _check_project_creation() -> None:
+    """Checks if script has already been executed and a project was successfully created accordingly. 
+    If the user refuses to continue, the script exists with error code 0"""
     if os.path.exists(ID_FILE):
         gcp_user_response = input(
             f"A '{ID_FILE}' file has already been generated, which means the setup script has "
@@ -194,7 +201,7 @@ async def check_project_creation():
             os.remove(f"{ID_FILE}")
 
 
-async def create_project():
+async def create_project() -> None:
     """Creates a new project in GCP"""
     logging.info(f"Creating project...")
     project_id = f"{PROJECT_NAME.lower()}-{int(time.time() * 1000)}"
@@ -206,12 +213,12 @@ async def create_project():
     logging.info(f"Project [{project_id}] created successfully \u2705")
 
 
-async def verify_tos_accepted():
+async def verify_tos_accepted() -> None:
     """Checks for the first API if it can be enabled and enables it.
     If it can't be done, the user is requested to accept the Terms of service"""
     logging.info(f"Verifying acceptance of Terms of service...")
     tos_accepted = False
-    while GOOGLE_CLOUD_APIS and not tos_accepted:
+    while not tos_accepted:
         command = f"gcloud services enable {GOOGLE_CLOUD_APIS[0]}"
         _, stderr, return_code = await retryable_command(
             command, max_num_retries=1, suppress_errors=True)
@@ -242,16 +249,16 @@ async def verify_tos_accepted():
     logging.info(f"Terms of service acceptance verified \u2705")
 
 
-async def verify_service_account_authorization():
-    """Verifies all scopes are authorized"""
+async def verify_service_account_authorization() -> None:
+    """Verifies all scopes are authorized. """
     logging.info(f"Verifying service account authorization...")
-    admin_user_email = await get_admin_user_email()
-    service_account_id = await get_service_account_id()
+    admin_user_email = await _get_admin_user_email()
+    service_account_id = await _get_service_account_id()
     scopes_are_authorized = False
     while not scopes_are_authorized:
         scope_authorization_failures = []
         for scope in SCOPES_ALL:
-            scope_authorized = verify_scope_authorization(admin_user_email, scope)
+            scope_authorized = _verify_scope_authorization(admin_user_email, scope)
             if not scope_authorized:
                 scope_authorization_failures.append(scope)
         if scope_authorization_failures:
@@ -279,23 +286,23 @@ async def verify_service_account_authorization():
     logging.info(f"Service account successfully authorized \u2705")
 
 
-async def get_project_id():
+async def _get_project_id() -> str:
     """Gets a project id"""
     command = "gcloud config get-value project"
     project_id, _, _ = await retryable_command(command, require_output=True)
     return project_id.decode().rstrip()
 
 
-async def get_admin_user_email():
+async def _get_admin_user_email() -> str:
     """Gets the gcloud admin account email"""
     command = 'gcloud auth list --format="value(account)"'
     admin_user_email, _, _ = await retryable_command(command, require_output=True)
     return admin_user_email.decode().rstrip()
 
 
-async def authorize_service_account_dwd():
+async def authorize_service_account_dwd() -> None:
     """Requests the user to authorize domain wide delegations for the scopes"""
-    service_account_id = await get_service_account_id()
+    service_account_id = await _get_service_account_id()
     scopes = urllib.parse.quote(",".join(SCOPES_ALL), safe="")
     authorize_url = DWD_URL_FORMAT.format(service_account_id, scopes)
     input(f"\nBefore using {TOOL_NAME_FRIENDLY}, you must authorize the service "
@@ -304,21 +311,31 @@ async def authorize_service_account_dwd():
           "here and press Enter to continue.")
 
 
-def verify_scope_authorization(subject, scope):
-    """Verifies that the subject account can be delegated with the scopes and handles relevant exceptions"""
+def _verify_scope_authorization(subject: str, scope: str) -> bool:
+    """Verifies that the subject account can be delegated with the scopes and handles relevant exceptions
+    
+    @param subject: the user email to check for scope authorization
+    @param scope: the OAuth2 scope (permissions) that needs to be verified against the subject
+    """
+
     try:
-        get_access_token_for_scopes(subject, [scope])
+        _get_access_token_for_scopes(subject, [scope])
         return True
     except RefreshError:
         return False
-    except:
-        e = sys.exc_info()[0]
-        logging.error(f"An unknown error occurred: {e}")
+    except Exception as e:
+        logging.error(f"An unknown error occurred: {str(e)}")
         return False
 
 
-def get_access_token_for_scopes(subject, scopes):
-    """Obtains a token for the delegated credentials of subject by the scopes"""
+def _get_access_token_for_scopes(subject: str, scopes: list):
+    """Obtains a token for the delegated credentials of subject by the scopes
+
+    @param subject: the user email to check for scope authorization
+    @param scopes: the OAuth2 scopes (permissions)
+
+    """
+
     logging.debug(f"Getting access token for scopes {scopes}, user {subject} ...")
     credentials = service_account.Credentials.from_service_account_file(KEY_FILE, scopes=scopes)
     delegated_credentials = credentials.with_subject(subject)
@@ -328,7 +345,7 @@ def get_access_token_for_scopes(subject, scopes):
     return delegated_credentials.token
 
 
-async def get_service_account_id():
+async def _get_service_account_id() -> str:
     """Gets the service account id; this function can be executed only after a project is set in gcloud"""
     command = 'gcloud iam service-accounts list --format="value(uniqueId)"'
     service_account_id, _, _ = await retryable_command(
@@ -336,36 +353,40 @@ async def get_service_account_id():
     return service_account_id.decode().rstrip()
 
 
-async def create_service_account():
+async def create_service_account() -> None:
     """Creates the service account"""
     logging.info(f"Creating service account ...")
     service_account_name = f"{SERVICE_ACCT_NAME}"
     await retryable_command(f"gcloud iam service-accounts create {service_account_name}")
-    service_account_email = await get_service_account_email()
+    service_account_email = await _get_service_account_email()
     logging.info(f"Service account [{service_account_email}] created successfully \u2705")
 
 
-async def enable_api(api):
-    """Enables a single API that is passed to the function"""
+async def _enable_api(api) -> None:
+    """Enables a single API that is passed to the function
+
+    @param api: the Google API to enable
+    """
+
     command = f"gcloud services enable {api}"
     await retryable_command(command)
 
 
-async def enable_apis():
+async def enable_apis() -> None:
     """Enables APIs in preparation for evidence collection from GW/CI and GCP"""
     logging.info(f"Enabling APIs ...")
     # verify_tos_accepted checks the first API, so skip it here.
-    enable_api_calls = map(enable_api, GOOGLE_CLOUD_APIS[1:])
+    enable_api_calls = map(_enable_api, GOOGLE_CLOUD_APIS[1:])
     await asyncio.gather(*enable_api_calls)
     logging.info(f"APIs enabled successfully \u2705")
 
 
-async def verify_api_access():
+async def verify_api_access() -> None:
     """Verifies all APIs are accessible"""
     logging.info(f"Verifying API access...")
-    admin_user_email = await get_admin_user_email()
-    project_id = await get_project_id()
-    token = get_access_token_for_scopes(admin_user_email, SCOPES_ALL)
+    admin_user_email = await _get_admin_user_email()
+    project_id = await _get_project_id()
+    token = _get_access_token_for_scopes(admin_user_email, SCOPES_ALL)
     retry_api_verification = True
     while retry_api_verification:
         disabled_apis = {}
@@ -403,12 +424,16 @@ async def verify_api_access():
                 api_name = service_name = "Tasks"
                 raw_api_response = execute_api_request(
                     "https://tasks.googleapis.com/tasks/v1/users/@me/lists?maxResults=1&fields=kind", token)
+            if api == "cloudasset.googleapis.com":
+                api_name = service_name = "CloudAsset"
+                raw_api_response = execute_api_request(
+                    f"https://cloudasset.googleapis.com/v1/projects/{project_id}/assets", token)
 
-            if is_api_disabled(raw_api_response):
+            if _is_api_disabled(raw_api_response):
                 disabled_apis[api_name] = api
                 retry_api_verification = True
 
-            if service_name and is_service_disabled(raw_api_response):
+            if service_name and _is_service_disabled(raw_api_response):
                 disabled_services.append(service_name)
                 retry_api_verification = True
 
@@ -444,42 +469,60 @@ async def verify_api_access():
     logging.info(f"API access verified \u2705")
 
 
-def is_api_disabled(raw_api_response):
-    """Checks if a given API HTTPS response is empty or that is has an error message embedded in the results"""
-    if raw_api_response is None:
+def _is_api_disabled(raw_api_response: str) -> bool:
+    """Checks if a given API HTTPS response is empty or that is has an error message embedded in the results
+
+    @param raw_api_response: the raw API response. Can be either None or str (in a json format)
+    """
+
+    if raw_api_response == "":
         return True
     try:
         api_response = json.loads(raw_api_response)
-        return "it is disabled" in api_response["error"]["message"]
-    except:
+        if "error" in api_response:
+            return "it is disabled" in api_response["error"]["message"]
+    except Exception as e:
+        logging.error(f'general exception in API disable state check: {str(e)}. Raw response: {raw_api_response}')
         pass
     return False
 
 
-def is_service_disabled(raw_api_response):
-    """Checks if a given service HTTPS response is empty or that is has an error message embedded in the results"""
-    if raw_api_response is None:
+def _is_service_disabled(raw_api_response: str) -> bool:
+    """Checks if a given service HTTPS response is empty or that is has an error message embedded in the results
+
+    @param raw_api_response: the raw API response. Can be either None or str (in a json format)
+    """
+
+    if raw_api_response == "":
         return True
     try:
         api_response = json.loads(raw_api_response)
-        error_reason = api_response["error"]["errors"][0]["reason"]
-        if "notACalendarUser" or "notFound" or "authError" in error_reason:
-            return True
+        if "error" in api_response and "errors" in api_response["error"]:
+            error_reason = api_response["error"]["errors"][0]["reason"]
+            if "notACalendarUser" or "notFound" or "authError" in error_reason:
+                return True
     except:
         pass
 
     try:
         api_response = json.loads(raw_api_response)
-        if "service not enabled" in api_response["error"]["message"]:
-            return True
+        if "error" in api_response and "message" in api_response["error"]:
+            if "service not enabled" in api_response["error"]["message"]:
+                return True
     except:
         pass
 
     return False
 
 
-def execute_api_request(url, token):
-    """Executes an API request to a given url with a token"""
+def execute_api_request(url: str, token: str) -> object:
+    """Executes an API request to a given url with a token
+
+    @param url: the URL matching the relevant API request
+    @param token: the OAuth2 token
+    @return: Either the str representation of the response or None if the response is empty
+    """
+
     try:
         http = Http()
         headers = {
@@ -489,30 +532,31 @@ def execute_api_request(url, token):
         }
         logging.debug("Executing API request %s", url)
         _, content = http.request(url, "GET", headers=headers)
-        logging.debug("Response: %s", content.decode())
-        return content
+        decoded_content = content.decode()
+        logging.debug("Response: %s", decoded_content)
+        return decoded_content
     except:
         e = sys.exc_info()[0]
         logging.error("Failed to execute API request: %s", e)
         return None
 
 
-async def create_service_account_key():
+async def create_service_account_key() -> None:
     """Creates the key for the service account"""
     logging.info(f"Creating service account key ...")
-    service_account_email = await get_service_account_email()
+    service_account_email = await _get_service_account_email()
     await retryable_command(f"gcloud iam service-accounts keys create {KEY_FILE} "
                             f"--iam-account={service_account_email}")
     logging.info(f"Service account key created successfully \u2705")
 
 
-async def download_service_account_key():
+async def download_service_account_key() -> None:
     """Downloads the service account key"""
     command = f"cloudshell download {KEY_FILE}"
     await retryable_command(command)
 
 
-async def delete_key():
+async def delete_key() -> None:
     """Deletes the key from cloud shell after it has been downloaded"""
     input(f"\nPress Enter after you have downloaded the file, as it is about to be shredded.")
     logging.debug(f"Deleting key file ${KEY_FILE}...")
@@ -520,7 +564,7 @@ async def delete_key():
     await retryable_command(command)
 
 
-async def get_service_account_email():
+async def _get_service_account_email() -> str:
     """Gets the service account email; this function can be executed only after a project is set in gcloud"""
     command = 'gcloud iam service-accounts list --format="value(email)"'
     service_account_email, _, _ = await retryable_command(
@@ -528,136 +572,106 @@ async def get_service_account_email():
     return service_account_email.decode().rstrip()
 
 
-async def assign_role_binding(project_resource_ids, folder_resource_ids, org_resource_id):
-    """Used to assign IAM role bindings in preparation for GCP forensic collection script functionality"""
-    service_account_email = await get_service_account_email()
+async def assign_role_binding(project_resource_ids: list = None, folder_resource_ids: list = None,
+                              org_resource_id: list = None) -> None:
+    """Used to assign IAM role bindings in preparation for GCP forensic collection script functionality.
+    The function works independently on each param list, therefore ignored lists should be None.
+
+    @param project_resource_ids: a list of the project resource ids
+    @param folder_resource_ids: a list of the folder resource ids
+    @param org_resource_id: a list of the organization resource ids
+    """
+    service_account_email = await _get_service_account_email()
     logging.info(f"Beginning of role binding assignment ...")
 
     # Role bindings for project(s)
     if project_resource_ids is not None:
         for project_id in project_resource_ids:
-            for role in PROFILE:
-                # Validation and skip action if role binding already exists
-                resource = 'project'
-                if os.path.isfile(ROLE_BINDINGS_FILE):
-                    result = role_binding_check(resource, project_id, role, service_account_email)
-                    if result == 1:
-                        logging.debug(f"The '{role}' role in the [{project_id}] project "
-                                      f"has already been bound to [{service_account_email}] ... skipping role binding.")
-                        continue
-                # Continue with role binding action if not skipped via previous validation
-                logging.info(f"Assigning '{role}' to project [{project_id}] ...")
-                command = f"gcloud projects add-iam-policy-binding {project_id} " \
-                          f"--member=serviceAccount:{service_account_email} --role={role}"
-                _, stderr, return_code = await retryable_command(command,
-                                                                 max_num_retries=1,
-                                                                 suppress_errors=True)
-                # Error checking to see if previous resource ID(s) were entered incorrectly
-                err_str = stderr.decode()
-                if "may not exist" in err_str:
-                    logging.debug(f"The specified resource ID does not exist or exists outside the scope "
-                                  f"of the client's organization: [{project_id}]")
-                    print(f"The specified resource ID does not exist or exists "
-                          f"outside the scope of the targeted organization: [{project_id}]\n"
-                          f"Please re-run the script with the correct project ID.")
-                    sys.exit(0)
-                # If role binding succeeds, it is logged into ROLE_BINDINGS_FILE for tracking (and deletion)
-                with open(ROLE_BINDINGS_FILE, 'a') as fh:
-                    fh.write(f"{resource},{project_id},{role},{service_account_email}\n")
-                # Final completion message
-                logging.info(f"Role binding successful \u2705")
+            await assign_single_role_binding('project', project_id, service_account_email)
 
     # Role bindings for folder(s)
     if folder_resource_ids is not None:
         for folder_id in folder_resource_ids:
-            for role in PROFILE:
-                # Validation and skip action if role binding already exists
-                resource = 'folder'
-                if os.path.isfile(ROLE_BINDINGS_FILE):
-                    result = role_binding_check(resource, folder_id, role, service_account_email)
-                    if result == 1:
-                        logging.debug(f"The '{role}' role in the [{folder_id}] project "
-                                      f"has already been bound to [{service_account_email}] ... skipping role binding.")
-                        continue
-                # Continue with role binding action if not skipped via previous validation
-                logging.info(f"Assigning '{role}' to folder [{folder_id}] ...")
-                command = f"gcloud resource-manager folders add-iam-policy-binding {folder_id} " \
-                          f"--member=serviceAccount:{service_account_email} --role={role}"
-                _, stderr, return_code = await retryable_command(command,
-                                                                 max_num_retries=1,
-                                                                 suppress_errors=True)
-                # Error checking to see if previous resource ID(s) were entered incorrectly
-                err_str = stderr.decode()
-                if "may not exist" in err_str:
-                    logging.debug(f"The specified resource ID does not exist or exists outside the scope "
-                                  f"of the client's organization: [{folder_id}]")
-                    print(f"The specified resource ID does not exist or exists "
-                          f"outside the scope of the targeted organization: [{folder_id}]\n"
-                          f"Please re-run the script with the correct folder ID.")
-                    sys.exit(0)
-                # If role binding succeeds, it is logged into ROLE_BINDINGS_FILE for tracking (and deletion)
-                with open(ROLE_BINDINGS_FILE, 'a') as fh:
-                    fh.write(f"{resource},{folder_id},{role},{service_account_email}\n")
-                # Final completion message
-                logging.info(f"Role binding successful \u2705")
+            await assign_single_role_binding('folder', folder_id, service_account_email)
 
     # Role bindings for organization
     if org_resource_id is not None:
         for org_id in org_resource_id:
-            for role in PROFILE:
-                # Validation and skip action if role binding already exists
-                resource = 'organization'
-                if os.path.isfile(ROLE_BINDINGS_FILE):
-                    result = role_binding_check(resource, org_resource_id, role, service_account_email)
-                    if result == 1:
-                        logging.debug(f"The '{role}' role in the [{org_id}] project "
-                                      f"has already been bound to [{service_account_email}] ... skipping role binding.")
-                        continue
-                # Continue with role binding action if not skipped via previous validation
-                logging.info(f"Assigning '{role}' to organization [{org_id}] ...")
-                command = f"gcloud organizations add-iam-policy-binding {org_id} " \
-                          f"--member=serviceAccount:{service_account_email} --role={role}"
-                _, stderr, return_code = await retryable_command(command,
-                                                                 max_num_retries=1,
-                                                                 suppress_errors=True)
-                # Error checking to see if previous resource ID(s) were entered incorrectly
-                err_str = stderr.decode()
-                if "may not exist" in err_str:
-                    logging.debug(f"The specified resource ID does not exist or exists outside the scope "
-                                  f"of the client's organization: [{org_id}]")
-                    print(f"The specified resource ID does not exist or exists "
-                          f"outside the scope of the targeted organization: [{org_id}]\n"
-                          f"Please re-run the script with the correct folder ID.")
-                    sys.exit(0)
-                # If role binding succeeds, it is logged into ROLE_BINDINGS_FILE for tracking (and deletion)
-                with open(ROLE_BINDINGS_FILE, 'a') as fh:
-                    fh.write(f"{resource},{org_id},{role},{service_account_email}\n")
-                # Final completion message
-                logging.info(f"Role binding successful \u2705")
+            await assign_single_role_binding('organization', org_id, service_account_email)
 
     # Final completion message
     logging.info(f"End of role binding assignment \u2705")
     logging.info(f"Role bindings are tracked in [{ROLE_BINDINGS_FILE}]")
 
 
-def role_binding_check(resource, resource_id, role, service_account_email):
-    """Used to check if role binding has been previously recorded"""
+async def assign_single_role_binding(resource_type, resource_id, service_account_email) -> None:
+    """
+    Assigns a single role binding to a resource id and an identity entity (service_account_email) based 
+    on its type. The assigned roles are: ["roles/logging.privateLogViewer", "roles/cloudasset.viewer"]
+    
+    @param resource_type: the type of the resource (e.g., organization)
+    @param resource_id: the resource id to associate the role binding with
+    @param service_account_email: the email address to associate the role binding with
+    """
+
+    gcloud_commands = {
+        'project': f"gcloud projects add-iam-policy-binding {resource_id} "
+                   f"--member=serviceAccount:{service_account_email} --role=",
+        'folder': f"gcloud resource-manager folders add-iam-policy-binding {resource_id} "
+                  f"--member=serviceAccount:{service_account_email} --role=",
+        'organization': f"gcloud organizations add-iam-policy-binding {resource_id} "
+                        f"--member=serviceAccount:{service_account_email} --role="
+    }
+    for role in PROFILE:
+        # Validation and skip action if role binding already exists
+        if os.path.isfile(ROLE_BINDINGS_FILE):
+            if role_binding_check(resource_type, resource_id, role, service_account_email):
+                logging.debug(f"The '{role}' role in the [{resource_id}] project "
+                              f"has already been bound to [{service_account_email}] ... skipping role binding.")
+                continue
+        # Continue with role binding action if not skipped via previous validation
+        logging.info(f"Assigning '{role}' to resource [{resource_id}] ...")
+        command = gcloud_commands[resource_type] + role
+        _, stderr, return_code = await retryable_command(command,
+                                                         max_num_retries=1,
+                                                         suppress_errors=True)
+        # Error checking to see if previous resource ID(s) were entered incorrectly
+        err_str = stderr.decode()
+        if "may not exist" in err_str:
+            logging.debug(f"The specified resource ID does not exist or exists outside the scope "
+                          f"of the client's organization: [{resource_id}]")
+            print(f"The specified resource ID does not exist or exists "
+                  f"outside the scope of the targeted organization: [{resource_id}]\n"
+                  f"Please re-run the script with the correct folder ID.")
+            sys.exit(0)
+        # If role binding succeeds, it is logged into ROLE_BINDINGS_FILE for tracking (and deletion)
+        with open(ROLE_BINDINGS_FILE, 'a') as fh:
+            fh.write(f"{resource_type},{resource_id},{role},{service_account_email}\n")
+        # Final completion message
+        logging.info(f"Role binding successful \u2705")
+
+
+def role_binding_check(resource: str, resource_id: str, role: str, service_account_email: str) -> bool:
+    """Used to check if role binding has been previously recorded in the cache file
+
+    @param resource: the type of the resource (e.g., organization)
+    @param resource_id: the resource id to associate the role binding with
+    @param role: the role to be assigned
+    @param service_account_email: the email address to associate the role binding with
+    """
+
     role_binding = f"{resource},{resource_id},{role},{service_account_email}"
     with open(ROLE_BINDINGS_FILE, 'r') as f:
-        for line in f:
-            if role_binding in line:
-                return 1
+        return role_binding in f.read()
 
 
-def check_project_requirements():
+def check_project_requirements() -> bool:
     """Check if the 'project_id' file is located in the appropriate location"""
-    if not os.path.exists(ID_FILE):
-        return False
-    return True
+    return os.path.exists(ID_FILE)
 
 
-def read_projects():
-    """Read project ID(s) in preparation for project deletion"""
+def read_projects() -> list:
+    """Read project ID(s) in preparation for project deletion from cache file"""
     project_ids = []
     with open(ID_FILE, 'r') as f:
         for line in f:
@@ -665,8 +679,12 @@ def read_projects():
     return project_ids
 
 
-async def delete_projects(project_ids):
-    """Deletes all project IDs from GCP; returns how many projects were deleted successfully"""
+async def delete_projects(project_ids) -> int:
+    """Deletes all project IDs from GCP; returns how many projects were deleted successfully
+
+    @param project_ids: the project ids to delete
+    """
+
     problematic_ids = []
     count_deleted = 0
     for project_id in project_ids:
@@ -694,8 +712,12 @@ async def delete_projects(project_ids):
     return count_deleted
 
 
-async def delete_project(project_id):
-    """Deletes a single project in GCP; returns whether the project was deleted successfully"""
+async def delete_project(project_id) -> bool:
+    """Deletes a single project in GCP; returns whether the project was deleted successfully
+
+    @param project_id: the project id to delete
+    """
+
     logging.info(f"Deleting project [{project_id}] ...")
     try:
         await retryable_command(f"gcloud projects delete {project_id} -q")
@@ -707,15 +729,13 @@ async def delete_project(project_id):
         return False
 
 
-def check_gcp_requirements():
+def check_gcp_requirements() -> bool:
     """Check if the 'role_bindings_tracker' file is located in the appropriate location"""
-    if not os.path.exists(ROLE_BINDINGS_FILE):
-        return False
-    return True
+    return os.path.exists(ROLE_BINDINGS_FILE)
 
 
-def read_role_bindings():
-    """Read role bindings in preparation for removal"""
+def read_role_bindings() -> list:
+    """Read role bindings in preparation for removal from cache file"""
     role_bindings = []
     with open(ROLE_BINDINGS_FILE, 'r') as fh:
         for line in fh:
@@ -723,8 +743,14 @@ def read_role_bindings():
     return role_bindings
 
 
-async def remove_role_bindings(role_bindings):
-    """Removes all or specified role bindings from GCP; returns how many role bindings were deleted successfully"""
+async def remove_role_bindings(role_bindings: list) -> (int, int):
+    """Removes all or specified role bindings from GCP; returns how many role bindings were deleted successfully
+    and how many had problems.
+
+    @param role_bindings: a list of comma-seperated strings that each represents the role_binding:
+    resource, resource_id, role, service_account_email
+    """
+
     logging.info(f"Beginning of role binding removal ...")
     problematic_role_bindings = []
     count_deleted = 0
@@ -759,45 +785,36 @@ async def remove_role_bindings(role_bindings):
     return count_deleted, problem_count
 
 
-async def remove_role_binding(resource, role, resource_id, service_account_email):
-    """Removes a single role binding in GCP; returns whether the role binding was deleted successfully"""
-    logging.info(f"Removing '{role}' assigned to service account in {resource} [{resource_id}] ...")
-    if resource == "project":
-        try:
-            command = f"gcloud projects remove-iam-policy-binding {resource_id} " \
-                      f"--member=serviceAccount:{service_account_email} --role={role}"
-            await retryable_command(command, max_num_retries=1)
-            logging.info(f"Role binding removal successful \u2705")
-            return True
-        except Exception as e:
-            logging.info(f"Role binding removal failure \u274c")
-            logging.debug(f"{str(e)}")
-            return False
-    if resource == "folder":
-        try:
-            command = f"gcloud resource-manager folders remove-iam-policy-binding {resource_id} " \
-                      f"--member=serviceAccount:{service_account_email} --role={role}"
-            await retryable_command(command, max_num_retries=1)
-            logging.info(f"Role binding removal successful \u2705")
-            return True
-        except Exception as e:
-            logging.info(f"Role binding removal failure \u274c")
-            logging.debug(f"{str(e)}")
-            return False
-    if resource == "organization":
-        try:
-            command = f"gcloud organizations remove-iam-policy-binding {resource_id} " \
-                      f"--member=serviceAccount:{service_account_email} --role={role}"
-            await retryable_command(command, max_num_retries=1)
-            logging.info(f"Role binding removal successful \u2705")
-            return True
-        except Exception as e:
-            logging.info(f"Role binding removal failure \u274c")
-            logging.debug(f"{str(e)}")
-            return False
+async def remove_role_binding(resource_type, role, resource_id, service_account_email) -> bool:
+    """Removes a single role binding in GCP; returns whether the role binding was deleted successfully.
+
+    @param resource_type: the resource type (e.g., organization)
+    @param role: the role to be associated
+    @param resource_id: the resource id
+    @param service_account_email: the identity entity email address
+    """
+
+    logging.info(f"Removing '{role}' assigned to service account in {resource_type} [{resource_id}] ...")
+    gcloud_commands = {
+        'project': f"gcloud projects remove-iam-policy-binding {resource_id} "
+                   f"--member=serviceAccount:{service_account_email} --role={role}",
+        'folder': f"gcloud resource-manager folders remove-iam-policy-binding {resource_id} "
+                  f"--member=serviceAccount:{service_account_email} --role={role}",
+        'organization': f"gcloud organizations add-iam-policy-binding {resource_id} "
+                        f"--member=serviceAccount:{service_account_email} --role={role}"
+    }
+    try:
+        command = gcloud_commands[resource_type]
+        await retryable_command(command, max_num_retries=1)
+        logging.info(f"Role binding removal successful \u2705")
+        return True
+    except Exception as e:
+        logging.info(f"Role binding removal failure \u274c")
+        logging.debug(f"{str(e)}")
+        return False
 
 
-async def get_service_account_id_cleanup():
+async def get_service_account_id_cleanup() -> str:
     """Gathers the service account email based on the 'project_id' reference file"""
     # Ensure that 'project_id' file reference is available from executing 'setup' functionality
     try:
@@ -816,9 +833,11 @@ async def get_service_account_id_cleanup():
     return service_account_email.decode().rstrip()
 
 
-def init_logger(args):
-    """Initialize logger for DEBUG and INFO levels; DEBUG messages outputs are saved to log file"""
-    # Log DEBUG level messages and above to a file
+def init_logger(args: argparse.Namespace) -> None:
+    """Initialize logger for DEBUG and INFO levels; DEBUG messages outputs are saved to log file
+
+    @param args: the command line arguments after being parsed from argparse
+    """
     logging.basicConfig(
         filename=f"{TROUBLESHOOTING_LOG_FILE}",
         format="[%(asctime)s][%(levelname)s] %(message)s",
@@ -830,127 +849,158 @@ def init_logger(args):
     formatter = logging.Formatter(f"[{GD}{args.mode}{RR}:{BG}{args.service}{RR}] %(message)s")
     console.setFormatter(formatter)
     logging.getLogger("").addHandler(console)
-    return
+
+
+async def start_setup(parser: argparse.ArgumentParser, args: argparse.Namespace) -> None:
+    """Starts the setup required for Cirrus. The setup mainly involves the following steps:
+    1. creates a project to work in
+    2. verify terms of service are accepted
+    3. enables relevant apis
+    4. creates a service account
+    5. authorizes the service in domain wide delegations [Google Workspace only]
+    6. creates a service account key
+    7. verifies the service account authorization
+    8. verifies api access
+    9. assigns role binding to relevant resources [GCP only]
+    10. downloads the service account key
+    11. shreds the key from the Google Cloud Shell console
+
+    @param parser: the argparse object
+    @param args: the argparse arguments after being parsed
+    """
+
+    create_reference_folder()
+    try:
+        # Check if script has already been run successfully and if so, give option to quit
+        await _check_project_creation()
+        project_resource_ids = None
+        folder_resource_ids = None
+        org_resource_id = None
+
+        # Variable setup in preparation for role binding assignment
+        if args.service == 'gcp' or args.service == 'all':
+            if args.project_id:
+                project_resource_ids = [x for x in args.project_id.split(',')]
+            if args.folder_id:
+                folder_resource_ids = [x for x in args.folder_id.split(',')]
+            if args.organization_id:
+                org_resource_id = [x for x in args.organization_id.split(',')]
+                if len(org_resource_id) > 1:
+                    parser.error("you may only specify a single organization ID")
+
+        # Console prompt
+        os.system("clear")
+        response = input(
+            f"Welcome! This script will create and authorize the "
+            "resources necessary for Google Cloud incident response. "
+            f"The following steps will be performed on your behalf:\n\n"
+            "1. creates a project to work in\n"
+            "2. verify terms of service are accepted\n"
+            "3. enables relevant apis\n"
+            "4. creates a service account\n"
+            "5. authorizes the service in domain wide delegations [Google Workspace only]\n"
+            "6. creates a service account key\n"
+            "7. verifies the service account authorization\n"
+            "8. verifies api access\n"
+            "9. assigns role binding to relevant resources [GCP only]\n"
+            "10. downloads the service account key\n"
+            "11. shreds the key from the Google Cloud Shell console\n"
+            "When the script has completed, you will be prompted to download the service account key. "
+            f"This key can then be used for {TOOL_NAME}.\n"
+            f"If you have any questions, please speak to an appropriate representative.\n\n"
+            f"Press Enter to continue or 'n' to exit: ")
+        if response.lower() == "n":
+            sys.exit(0)
+
+        await create_project()
+        await verify_tos_accepted()
+        await enable_apis()
+        await create_service_account()
+        if args.service == 'gw' or args.service == 'all':
+            await authorize_service_account_dwd()
+        await create_service_account_key()
+        if args.service == 'gw' or args.service == 'all':
+            await verify_service_account_authorization()
+            await verify_api_access()
+        if args.service == 'gcp' or args.service == 'all':
+            await assign_role_binding(project_resource_ids,
+                                      folder_resource_ids,
+                                      org_resource_id)
+        await download_service_account_key()
+        await delete_key()
+
+        logging.info(f"Done \u2705")
+        print(f"\nIf you have already downloaded the file, then you may close this "
+              "page. Please remember that this file is highly sensitive. Any person "
+              "who gains access to the key file will then have full access to all "
+              "resources to which the service account has access. You should treat "
+              "it just like you would a password.")
+
+    # General exception catcher
+    except (Exception, SystemExit) as e:
+        if str(e) != '0':  # Good system exit
+            logging.debug(traceback.format_exc())
+            print(f"ERROR, please see log [{TROUBLESHOOTING_LOG_FILE_PATH}] for troubleshooting.")
+
+
+async def start_cleanup(args):
+    """Starts the cleanup process after Cirrus is no longer needed. The setup mainly involves the following steps
+
+    @param args: the argparse arguments after being parsed
+    """
+    try:
+        os.system("clear")
+        response = input(
+            f"Welcome! This script will delete the GCP project and role bindings that "
+            f"were created during the setup script functionality.\n"
+            f"All settings defined for the creation script will be erased.\n"
+            f"The deletion of any project in GCP, including this one, can be canceled in a 7 "
+            f"days period.\n"
+            f"If you have any questions, please speak to an appropriate representative.\n\n"
+            f"Press Enter to continue or 'n' to exit:")
+        if response.lower() == "n":
+            sys.exit(0)
+
+        # Check if 'project_id' file in reference folder
+        if not check_project_requirements():
+            print(f"\nThe '{ID_FILE}' file must be found in the reference folder "
+                  f"[{DEFAULT_OUTPUT_FOLDER}], and include the content of the creation script.")
+            sys.exit(1)
+
+        if args.service == 'gcp' or args.service == 'all':
+
+            # Check if 'role_bindings_tracker' file in reference folder
+            if not check_gcp_requirements():
+                print(f"\nThe '{ROLE_BINDINGS_FILE}' file must be found in the reference folder "
+                      f"[{DEFAULT_OUTPUT_FOLDER}], and include the content of the creation script.")
+                sys.exit(1)
+
+            # Deletion of role bindings
+            role_bindings = read_role_bindings()
+            await remove_role_bindings(role_bindings)
+
+        # Deletion of projects
+        project_ids = read_projects()
+        await delete_projects(project_ids)
+
+    # General exception catcher
+    except (Exception, SystemExit) as e:
+        if str(e) != '0':  # Good system exit
+            logging.debug(traceback.format_exc())
+            print(f'ERROR, please see [{TROUBLESHOOTING_LOG_FILE_PATH}] for troubleshooting.')
 
 
 async def main():
     parser, args = get_arguments()
     init_logger(args)
     change_me_section_check()
+    validate_arguments(parser, args)
     # Setup subparser functionality
     if args.mode == 'setup':
-        validate_arguments(parser, args)
-        create_reference_folder()
-        try:
-
-            # Check if script has already been run successfully and if so, give option to quit
-            await check_project_creation()
-
-            # Variable setup in preparation for role binding assignment
-            if args.service == 'gcp' or args.service == 'all':
-                project_resource_ids = None
-                if args.project_id:
-                    project_resource_ids = [x for x in args.project_id.split(',')]
-                folder_resource_ids = None
-                if args.folder_id:
-                    folder_resource_ids = [x for x in args.folder_id.split(',')]
-                org_resource_id = None
-                if args.organization_id:
-                    org_resource_id = [x for x in args.organization_id.split(',')]
-                    if len(org_resource_id) > 1:
-                        parser.error("you may only specify a single organization ID")
-
-            # Console prompt
-            os.system("clear")
-            gcp_response = input(
-                f"Welcome! This script will create and authorize the "
-                "resources necessary for Google Cloud Platform incident response. "
-                f"The following steps will be performed on your behalf:\n\n"
-                "1. Create a Google Cloud Platform project\n"
-                "2. Enable APIs\n"
-                "3. Create a service account\n"
-                "4. Perform role bindings for the service account across specified Google Cloud resource(s)\n"
-                "5. Create a service account key\n\n"
-                "When the script has completed, you will be prompted to download the service account key. "
-                f"This key can then be used for {TOOL_NAME}.\n"
-                f"If you have any questions, please speak to an appropriate representative.\n\n"
-                f"Press Enter to continue or 'n' to exit: ")
-            if gcp_response.lower() == "n":
-                sys.exit(0)
-
-            await create_project()
-            await verify_tos_accepted()
-            await enable_apis()
-            await create_service_account()
-            if args.service == 'gw' or args.service == 'all':
-                await authorize_service_account_dwd()
-            await create_service_account_key()
-            if args.service == 'gw' or args.service == 'all':
-                await verify_service_account_authorization()
-                await verify_api_access()
-            if args.service == 'gcp' or args.service == 'all':
-                await assign_role_binding(project_resource_ids,
-                                          folder_resource_ids,
-                                          org_resource_id)
-            await download_service_account_key()
-            await delete_key()
-
-            logging.info(f"Done \u2705")
-            print(f"\nIf you have already downloaded the file, then you may close this "
-                  "page. Please remember that this file is highly sensitive. Any person "
-                  "who gains access to the key file will then have full access to all "
-                  "resources to which the service account has access. You should treat "
-                  "it just like you would a password.")
-
-        # General exception catcher
-        except (Exception, SystemExit) as e:
-            if str(e) != '0':  # Good system exit
-                logging.debug(traceback.format_exc())
-                print(f"ERROR, please see log [{TROUBLESHOOTING_LOG_FILE_PATH}] for troubleshooting.")
-
+        await start_setup(parser, args)
     # Cleanup subparser functionality
     if args.mode == 'cleanup':
-        validate_arguments(parser, args)
-        try:
-            os.system("clear")
-            response = input(
-                f"Welcome! This script will delete the GCP project and role bindings that "
-                f"were created during the setup script functionality.\n"
-                f"All settings defined for the creation script will be erased.\n"
-                f"The deletion of any project in GCP, including this one, can be canceled in a 7 "
-                f"days period.\n"
-                f"If you have any questions, please speak to an appropriate representative.\n\n"
-                f"Press Enter to continue or 'n' to exit:")
-            if response.lower() == "n":
-                sys.exit(0)
-
-            # Check if 'project_id' file in reference folder
-            if not check_project_requirements():
-                print(f"\nThe '{ID_FILE}' file must be found in the reference folder "
-                      f"[{DEFAULT_OUTPUT_FOLDER}], and include the content of the creation script.")
-                sys.exit(1)
-
-            if args.service == 'gcp' or args.service == 'all':
-
-                # Check if 'role_bindings_tracker' file in reference folder
-                if not check_gcp_requirements():
-                    print(f"\nThe '{ROLE_BINDINGS_FILE}' file must be found in the reference folder "
-                          f"[{DEFAULT_OUTPUT_FOLDER}], and include the content of the creation script.")
-                    sys.exit(1)
-
-                # Deletion of role bindings
-                role_bindings = read_role_bindings()
-                await remove_role_bindings(role_bindings)
-
-            # Deletion of projects
-            project_ids = read_projects()
-            await delete_projects(project_ids)
-
-        # General exception catcher
-        except (Exception, SystemExit) as e:
-            if str(e) != '0':  # Good system exit
-                logging.debug(traceback.format_exc())
-                print(f'ERROR, please see [{TROUBLESHOOTING_LOG_FILE_PATH}] for troubleshooting.')
+        await start_cleanup(args)
 
 
 if __name__ == "__main__":

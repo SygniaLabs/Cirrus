@@ -1,13 +1,16 @@
-import os
 import logging
+import os
+
 from googleapiclient.discovery import build
 
-from ..shared.shared_utils import DEFAULT_CACHE_FOLDER, MemoryCache
 from ..shared.module_handler import ModuleHandler
+from ..shared.shared_utils import DEFAULT_CACHE_FOLDER, MemoryCache
 
-DEFAULT_USERS_FILE = os.path.join(DEFAULT_CACHE_FOLDER, 'active_users.tmp')  # Active users are non suspended users that have logged in at least once
+DEFAULT_USERS_FILE = os.path.join(DEFAULT_CACHE_FOLDER,
+                                  'active_users.tmp')  # Active users are non suspended users that have logged in at least once
 DEFAULT_GROUPS_FILE = os.path.join(DEFAULT_CACHE_FOLDER, 'groups.tmp')
-DEFAULT_MAILBOX_SETUP_FILE = os.path.join(DEFAULT_CACHE_FOLDER, 'gmail_users.tmp')  # Contains all users that have their mailbox
+DEFAULT_MAILBOX_SETUP_FILE = os.path.join(DEFAULT_CACHE_FOLDER,
+                                          'gmail_users.tmp')  # Contains all users that have their mailbox
 # setup enables (and has Gmail access). This file keeps updating every time a new user is queries for its mailboxsetup settings.
 
 CUSTOMER_DEFAULT_PARAMS = {'customer': 'my_customer'}
@@ -16,7 +19,8 @@ NO_LOGIN_TIME = '1970-01-01T00:00:00.000Z'
 
 class AdminDirectory(ModuleHandler):
     def __init__(self, creds, file_handler):
-        super().__init__(creds, file_handler, build('admin', 'directory_v1', credentials=creds, cache=MemoryCache()), 'admin_directory')
+        super().__init__(creds, file_handler, build('admin', 'directory_v1', credentials=creds, cache=MemoryCache()),
+                         'admin_directory')
 
     def get_all_active_users(self, override=False, mailbox_setup=False):
         console = logging.getLogger(__name__)
@@ -71,12 +75,11 @@ class AdminDirectory(ModuleHandler):
         logging.info(f"Working with {len(groups)} groups. First group is: {groups[0] if len(groups) > 0 else 'None'}")
         return groups
 
-    def get_mailbox_enabled_users(self):
+    def get_mailbox_enabled_users(self) -> list:
         """
         Gets all uses with mailbox enabled, save them to temp file and returns them.
         Use this function if the main script worked with specific users, hence not all users were collected
         with their mailbox enables settings.
-        @return: dict
         """
         results = self._get_raw_active_users()
         return self._handle_gmail_users(results=results)

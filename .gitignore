@@ -1,0 +1,7 @@
+﻿.idea
+__pycache__
+*.egg-info
+
+Collectors/collectors/shared/google_collectors.log
+Collectors/collectors/shared/output/
+Collectors/collectors/shared/cache/

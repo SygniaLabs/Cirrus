@@ -1,11 +1,12 @@
+import logging
 import os
 import time
-import logging
-from tabulate import tabulate
-from googleapiclient.discovery import build
 
-from ..shared.shared_utils import DEFAULT_OUTPUT_FOLDER, MemoryCache
+from googleapiclient.discovery import build
+from tabulate import tabulate
+
 from ..shared.module_handler import ModuleHandler
+from ..shared.shared_utils import DEFAULT_OUTPUT_FOLDER, MemoryCache
 
 LOG_PREVIEW_TRACKER = os.path.join(DEFAULT_OUTPUT_FOLDER, "log_preview")
 
@@ -32,14 +33,12 @@ LOG_MAPPING = {
 
 class LogManagement(ModuleHandler):
     def __init__(self, creds, file_handler):
-        super().__init__(creds, file_handler, build('logging', 'v2', credentials=creds, cache=MemoryCache()), 'log_collection')
+        super().__init__(creds, file_handler, build('logging', 'v2', credentials=creds, cache=MemoryCache()),
+                         'log_collection')
 
     @staticmethod
     def check_logs(logs: list):
-        for log in logs:
-            if log not in SUPPORTED_LOGS:
-                return False
-        return True
+        return all(log in SUPPORTED_LOGS for log in logs)
 
     @staticmethod
     def collect_logs(handler, resource_ids: list = None, log_selection: list = None,
@@ -96,9 +95,9 @@ class LogManagement(ModuleHandler):
                     'resourceNames': rid,
                     'orderBy': "timestamp desc",
                     'pageSize': 500,
-                    'filter': f'timestamp >= \"{start_time}\" and '
-                              f'timestamp <= \"{end_time}\" and '
-                              f'{final_format_logs}'
+                    'filter': f'timestamp >= \"{start_time}\" AND '
+                              f'timestamp <= \"{end_time}\" AND '
+                              f'({final_format_logs})'
                 }
             }
 
@@ -122,7 +121,6 @@ class LogManagement(ModuleHandler):
 
         # Iterate through list of resources and output/record log listings
         for resource_id in resource_ids:
-
             logging.info(f"Collecting preview of available logs for resource [{resource_id}] ...")
             resource_type = resource_id.split('/')[0]
             log_preview_params = {
@@ -150,14 +148,11 @@ class LogManagement(ModuleHandler):
             count = 0
             # Adds human-readable log name for Tabulate output based on LOG_MAPPING constant
             # Example: "/project/wrg-12345/logs/GCEGuestAgent" translates to "gce_data" on the table
-            for short_name, long_name in LOG_MAPPING.items():
-                if isinstance(long_name, list):
-                    for names in long_name:
-                        if any(names in i for i in log):
-                            log.append(short_name)
-                            count = 1
-                else:
-                    if any(long_name in i for i in log):
+            for short_name, long_names in LOG_MAPPING.items():
+                if isinstance(long_names, str):
+                    long_names = [long_names]
+                for name in long_names:
+                    if any(name in i for i in log):
                         log.append(short_name)
                         count = 1
             if count == 0:

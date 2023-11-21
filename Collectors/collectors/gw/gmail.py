@@ -1,5 +1,5 @@
-import os
 import logging
+import os
 
 from .admin_directory import DEFAULT_MAILBOX_SETUP_FILE, AdminDirectory
 from ..shared.module_handler import ModuleHandler
@@ -32,6 +32,3 @@ class Gmail(ModuleHandler):
         relevant_gmail_users = list(set(users) & set(gmail_users))
         logging.info(f'Got {len(relevant_gmail_users)} users after comparison.')
         return relevant_gmail_users
-
-
-

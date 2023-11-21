@@ -2,6 +2,7 @@ import logging
 import os
 import sys
 import time
+
 from google.oauth2.service_account import Credentials
 
 from .asset_inventory import AssetInventoryManagement
@@ -11,8 +12,8 @@ from ..shared.shared_utils import FileHandler, DEFAULT_OUTPUT_FOLDER
 
 log_file = None
 
-BG = "\u001b[32;1m"         # Bright green
-RR = "\u001b[0m"            # Reset
+BG = "\u001b[32;1m"  # Bright green
+RR = "\u001b[0m"  # Reset
 
 
 def main():
@@ -47,7 +48,8 @@ def main():
             if args.preview:
                 preview_log_values = parser.user_cli_preview_logs(parser.parser, args)
 
-                service_account_credentials = Credentials.from_service_account_file(preview_log_values['credential_file'])
+                service_account_credentials = Credentials.from_service_account_file(
+                    preview_log_values['credential_file'])
                 preview_handler = LogManagement(creds=service_account_credentials, file_handler=file_handler)
 
                 LogManagement.collect_preview(preview_handler,
@@ -55,7 +57,8 @@ def main():
             # Log collection
             else:
                 log_collection_values = parser.user_cli_log_collection(parser.parser, args)
-                service_account_credentials = Credentials.from_service_account_file(log_collection_values['credential_file'])
+                service_account_credentials = Credentials.from_service_account_file(
+                    log_collection_values['credential_file'])
                 log_handler = LogManagement(creds=service_account_credentials, file_handler=file_handler)
 
                 if args.custom_logs:
@@ -75,7 +78,8 @@ def main():
         # Config collection
         if args.module == 'configurations':
             config_collection_values = parser.user_cli_config_collection(parser.parser, args)
-            service_account_credentials = Credentials.from_service_account_file(config_collection_values['credential_file'])
+            service_account_credentials = Credentials.from_service_account_file(
+                config_collection_values['credential_file'])
             config_handler = AssetInventoryManagement(creds=service_account_credentials,
                                                       file_handler=file_handler)
             AssetInventoryManagement.collect_configs(config_handler,

@@ -1,14 +1,15 @@
+import logging
 import os
 import sys
 import time
-import logging
 from sys import exit
+
 from google.oauth2.service_account import Credentials
 
-from .gmail import Gmail
 from .admin_directory import AdminDirectory, DEFAULT_CACHE_FOLDER
-from .log_events import LogEvents, ALL_APPLICATIONS
 from .cmdline import Parser
+from .gmail import Gmail
+from .log_events import LogEvents, ALL_APPLICATIONS
 from ..shared.shared_utils import FileHandler, DEFAULT_OUTPUT_FOLDER
 
 SCOPES = ['https://www.googleapis.com/auth/admin.directory.user.readonly',
@@ -27,13 +28,14 @@ SUPPORTED_MODULES = ['admin_directory', 'logs', 'gmail']
 CUSTOMER_ID_DEFAULT_PARAMS = {'customerId': 'my_customer'}
 CUSTOMER_DEFAULT_PARAMS = {'customer': 'my_customer'}
 
-BG = "\u001b[32;1m"         # Bright green
-RR = "\u001b[0m"            # Reset
+BG = "\u001b[32;1m"  # Bright green
+RR = "\u001b[0m"  # Reset
 
 log_file = None
 
 
 def main():
+    """Parses the command line arguments and executes the relevant function to execute the relevant API queries"""
     global log_file
     file_handler = None
     try:
@@ -99,7 +101,7 @@ def main():
                     users = admin_directory_handler.get_all_active_users(override=args.override_cache,
                                                                          mailbox_setup=mailbox_setup_required)
                 else:
-                    users = admin_directory_handler.get_all_active_users()
+                    users = admin_directory_handler.get_all_active_users(override=args.override_cache)
                 if len(users) == 0:
                     exit('could not retrieved users to work with. Exiting.')
             if all_groups_flag:
@@ -228,8 +230,7 @@ def main():
             gmail_handler = Gmail(creds=source_credentials, file_handler=file_handler)
             admin_directory_handler = AdminDirectory(creds=delegated_credentials, file_handler=file_handler)
             # Create Cache folder if it doesn't exist
-            if not os.path.exists(DEFAULT_CACHE_FOLDER):
-                os.makedirs(DEFAULT_CACHE_FOLDER)
+            os.makedirs(DEFAULT_CACHE_FOLDER, exist_ok=True)
             gmail_users = gmail_handler.get_relevant_gmail_users(admin_directory_handler=admin_directory_handler,
                                                                  users=users, override=args.override_cache)
             print(f"{BG}Starting to collect configurations/data from Gmail{RR}")
@@ -345,7 +346,7 @@ def main():
                                                     main_key='user',
                                                     is_get_action=True,
                                                     delegate_users=True,
-                                                    filename_additions=args.message_id+"_attachment")
+                                                    filename_additions=args.message_id + "_attachment")
             gmail_handler.close()
 
         print(f"{BG}Results are tracked in [{DEFAULT_OUTPUT_FOLDER}]{RR}")
