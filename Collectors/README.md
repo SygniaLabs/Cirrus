@@ -1,20 +1,21 @@
 # Cirrus - Collector
 
-## Overview
-Cirrus Collector gathers forensic artifacts across a Google Cloud environment. 
+## Overview<hr>
 
-## Capabilities
+Cirrus Collector gathers forensic artifacts across a Google Cloud environment.
+
+## Capabilities<hr>
 
 Cirrus Collector is a wrapper script that encloses two separate modules:
 
 1. **Google Workspace/Cloud Identity Collector**
 2. **Google Cloud Platform (GCP) Collector**
 
-## Usage
+## Usage<hr>
 
 ### Prerequisites
 
-- Cirrus Collector supports and was tested with **Python3** 
+- Cirrus Collector supports and was tested with **Python3**
 
 ### Installation & Quick Start
 
@@ -32,8 +33,16 @@ Usage examples:
 
 ### Google Workspace Collector
 
-For detailed information regarding Google Workspace or Cloud Identity evidence collection, visit [reference documentation](./collectors/gw/README.md).
+For detailed information regarding Google Workspace or Cloud Identity evidence collection,
+visit [reference documentation](./Collectors/collectors/gw/README.md).
 
 ### Google Cloud Platform Collector
 
-For detailed information regarding GCP evidence collection, visit [reference documentation](./collectors/gcp/README.md).
+For detailed information regarding GCP evidence collection,
+visit [reference documentation](./Collectors/collectors/gcp/README.md).
+
+### Compatability
+
+The collectors were developed and tested using Python v3.9.
+The collectors can be executed from both standalone machines or directly from Google Cloud Shell as the
+Cirrus Assistant.  

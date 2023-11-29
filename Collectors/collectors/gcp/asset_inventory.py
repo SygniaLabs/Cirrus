@@ -1,4 +1,5 @@
 import logging
+
 from googleapiclient.discovery import build
 
 from ..shared.module_handler import ModuleHandler
@@ -9,7 +10,8 @@ SUPPORTED_CONFIGS = ['gcp_map', 'rb_map', 'sa_info', 'sa_key_info', 'all_configs
 
 class AssetInventoryManagement(ModuleHandler):
     def __init__(self, creds, file_handler):
-        super().__init__(creds, file_handler, build('cloudasset', 'v1', credentials=creds, cache=MemoryCache()), 'asset_inventory')
+        super().__init__(creds, file_handler, build('cloudasset', 'v1', credentials=creds, cache=MemoryCache()),
+                         'asset_inventory')
 
     @staticmethod
     def collect_configs(handler, resource_ids: list, config_selection: list):
@@ -87,13 +89,13 @@ class AssetInventoryManagement(ModuleHandler):
         """Used to gather service account key information across specified resource ID(s)"""
         if resource_type == 'organizations':
             org_id = resource_ids[0]
-            AssetInventoryManagement.collect_service_account_information(handler, org_id)
+            AssetInventoryManagement.collect_service_account_key_info(handler, org_id)
         elif resource_type == 'folders':
             for folder_id in resource_ids:
-                AssetInventoryManagement.collect_service_account_information(handler, folder_id)
+                AssetInventoryManagement.collect_service_account_key_info(handler, folder_id)
         elif resource_type == 'projects':
             for project_id in resource_ids:
-                AssetInventoryManagement.collect_service_account_information(handler, project_id)
+                AssetInventoryManagement.collect_service_account_key_info(handler, project_id)
 
     @staticmethod
     def collect_service_account_key_info(handler, resource_id: str):

@@ -1,11 +1,13 @@
 import logging
-from googleapiclient.discovery import build, Resource
-from google.oauth2.service_account import Credentials
-from .shared_utils import FileHandler, ConsoleFormatter, MemoryCache
 from time import sleep
 
-BG = "\u001b[32;1m"         # Bright green
-RR = "\u001b[0m"            # Reset
+from google.oauth2.service_account import Credentials
+from googleapiclient.discovery import build, Resource
+
+from .shared_utils import FileHandler, ConsoleFormatter, MemoryCache
+
+BG = "\u001b[32;1m"  # Bright green
+RR = "\u001b[0m"  # Reset
 
 
 class ModuleHandler:
@@ -90,6 +92,8 @@ class ModuleHandler:
             first_check = True
             partial_dump = False
             # Iterate each page of the results
+            logging.info(f'Executing {self.module}=>{function}{requested_action}')
+            self.file_handler.append_log(f'Executing {self.module}=>{function}{requested_action}, params: {params}')
             while first_check or 'nextPageToken' in results:
                 # Update params token for next page if exists
                 updated_params = params.copy()
@@ -112,26 +116,32 @@ class ModuleHandler:
                             requested_action = '.create'  # for exception
                             results = action().create(**updated_params).execute()
                         elif is_no_action:
-                            requested_action = '.list'  # for exception
+                            requested_action = ''
                             results = action(**updated_params).execute()
                         else:
+                            requested_action = '.list'
                             results = action().list(**updated_params).execute()
                         success = True
                     except Exception as ex:
+                        # Handle known errors
+                        if 'Requested entity was not found.' in str(ex):
+                            self.file_handler.append_log('Requested entity was not found')
+                            break
                         # Retry Mechanism
-                        if retry_count == ModuleHandler.MAX_RETRY - 1:
-                            self.add_error_to_log(function=function, requested_action=requested_action, page=pages,
-                                                  latest_err=str(ex),
-                                                  additions=f'Max retry count reached ({ModuleHandler.MAX_RETRY}).')
-                            return {}  # END FUNCTION.
                         else:
-                            retry_count += 1
-                            sleep_time = retry_count * ModuleHandler.SLEEP_SECONDS_FOR_RETRY
-                            logging.info(f'Failed to retrieve {function}{requested_action}, page #{pages}, '
-                                  f'params {params}, metadata additions {metadata_additions}.\n'
-                                  f'Exception: {str(ex)}\n'
-                                  f'Retrying in {sleep_time} seconds...')
-                            sleep(sleep_time)
+                            if retry_count == ModuleHandler.MAX_RETRY - 1:
+                                self.add_error_to_log(function=function, requested_action=requested_action, page=pages,
+                                                      latest_err=str(ex),
+                                                      additions=f'Max retry count reached ({ModuleHandler.MAX_RETRY}).')
+                                return {}  # END FUNCTION.
+                            else:
+                                retry_count += 1
+                                sleep_time = retry_count * ModuleHandler.SLEEP_SECONDS_FOR_RETRY
+                                logging.info(f'Failed to retrieve {function}{requested_action}, page #{pages}, '
+                                             f'params {params}, metadata additions {metadata_additions}.\n'
+                                             f'Exception: {str(ex)}\n'
+                                             f'Retrying in {sleep_time} seconds...')
+                                sleep(sleep_time)
                 # append page results to final list
                 final_result = results.get(inner_object, {}) if inner_object else results
                 if len(final_result) > 0:
@@ -194,10 +204,10 @@ class ModuleHandler:
                 if add_to_log:
 
                     # Event counter
-                    total_event_count = len(obj)
+                    total_event_count = len(obj) if results_only else len(obj['data'])
                     if total_event_count % ModuleHandler.MAX_EVENTS == 0:
                         self.print_stdout(f"{total_event_count} events recorded and counting ...")
-
+                    self.print_stdout(f'{total_event_count} results were found')
                     self.add_to_log(function=function, results=obj, documented_item=documented_item)
                     if partial_dump:
                         self.file_handler.append_log(
@@ -208,6 +218,7 @@ class ModuleHandler:
             else:
                 _out = f'No results for {function}{requested_action} with the following params ' \
                        f'{str(params)}. Acting as {self.creds._subject}'
+                self.print_stdout('No Results Found')
                 if add_to_log:
                     self.file_handler.append_log(_out)
                 else:
@@ -286,7 +297,7 @@ class ModuleHandler:
             metadata_additions = [(main_key, item)] if main_key is not None else None
             documented_item = f'{item}_{filename_additions}' if filename_additions else item
 
-            self.print_stdout(f'Collecting data for [{item}]')
+            self.print_stdout(f'Collecting data for [{item}] using the function {function}')
 
             self.file_handler.append_log(f'Current Item: {item}')
             self.list_action(function=function, params=params, inner_object=inner_object,

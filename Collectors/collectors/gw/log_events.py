@@ -10,7 +10,8 @@ ALL_APPLICATIONS = ['access_transparency', 'admin', 'calendar', 'chat', 'drive',
 
 class LogEvents(ModuleHandler):
     def __init__(self, creds, file_handler):
-        super().__init__(creds, file_handler, build('admin', 'reports_v1', credentials=creds, cache=MemoryCache()), 'log_events')
+        super().__init__(creds, file_handler, build('admin', 'reports_v1', credentials=creds, cache=MemoryCache()),
+                         'log_events')
 
     @staticmethod
     def check_apps(apps: list):
