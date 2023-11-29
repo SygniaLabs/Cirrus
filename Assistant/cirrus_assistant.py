@@ -475,7 +475,7 @@ def _is_api_disabled(raw_api_response: str) -> bool:
     @param raw_api_response: the raw API response. Can be either None or str (in a json format)
     """
 
-    if raw_api_response == "":
+    if not raw_api_response:
         return True
     try:
         api_response = json.loads(raw_api_response)
@@ -493,7 +493,7 @@ def _is_service_disabled(raw_api_response: str) -> bool:
     @param raw_api_response: the raw API response. Can be either None or str (in a json format)
     """
 
-    if raw_api_response == "":
+    if not raw_api_response:
         return True
     try:
         api_response = json.loads(raw_api_response)
