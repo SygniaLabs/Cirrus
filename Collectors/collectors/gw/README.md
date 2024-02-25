@@ -21,32 +21,19 @@ This Admin Directory handler collects the following information:<br>
 
 | Function              | Description                                                                                                                                                                                                                                                                                                               |
 |-----------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **
-Users**             | List of all the users and their configurations.                                                                                                                                                                                                                                                                           | 
-| **Deleted
-Users**     | List of all the deleted users and their configurations.                                                                                                                                                                                                                                                                   | 
-| **
-Domains**           | Information about the domains registered in the account (customer).                                                                                                                                                                                                                                                       | 
-| **
-Asps**              | List all the application-specific passwords (ASPs) per user. Asps are used with applications that do not accept a verification code when logging into the application on certain devices. The ASP access code is used instead of the login and password you commonly use when accessing an application through a browser. | 
-| **Chrome OS
-Devices** | List all Google Chrome devices run on the Chrome OS.                                                                                                                                                                                                                                                                      | 
-| **
-Customers**         | Retrieves information about the current customer account (Google business account).                                                                                                                                                                                                                                       | 
-| **
-Groups**            | List all the groups and their settings (without their members).                                                                                                                                                                                                                                                           | 
-| **
-Members**           | List all the group members of a selected group.                                                                                                                                                                                                                                                                           | 
-| **Mobile
-Devices**    | List Google Workspace Mobile Management devices includes Android, Google Sync, and iOS devices.                                                                                                                                                                                                                           | 
-| **Org
-Units**         | List all the account's organizational units.                                                                                                                                                                                                                                                                              | 
-| **
-Roles**             | List all the roles in the account, without which user is assigned to each role.                                                                                                                                                                                                                                           | 
-| **Role
-Assignments**  | List all the bindings between roles and users.                                                                                                                                                                                                                                                                            | 
-| **
-Tokens**            | List all tokens that were issued by users to 3rd party applications.                                                                                                                                                                                                                                                      |
+| **Users**             | List of all the users and their configurations.                                                                                                                                                                                                                                                                           | 
+| **Deleted Users**     | List of all the deleted users and their configurations.                                                                                                                                                                                                                                                                   | 
+| **Domains**           | Information about the domains registered in the account (customer).                                                                                                                                                                                                                                                       | 
+| **Asps**              | List all the application-specific passwords (ASPs) per user. Asps are used with applications that do not accept a verification code when logging into the application on certain devices. The ASP access code is used instead of the login and password you commonly use when accessing an application through a browser. | 
+| **Chrome OS Devices** | List all Google Chrome devices run on the Chrome OS.                                                                                                                                                                                                                                                                      | 
+| **Customers**         | Retrieves information about the current customer account (Google business account).                                                                                                                                                                                                                                       | 
+| **Groups**            | List all the groups and their settings (without their members).                                                                                                                                                                                                                                                           | 
+| **Members**           | List all the group members of a selected group.                                                                                                                                                                                                                                                                           | 
+| **Mobile Devices**    | List Google Workspace Mobile Management devices includes Android, Google Sync, and iOS devices.                                                                                                                                                                                                                           | 
+| **Org Units**         | List all the account's organizational units.                                                                                                                                                                                                                                                                              | 
+| **Roles**             | List all the roles in the account, without which user is assigned to each role.                                                                                                                                                                                                                                           | 
+| **Role Assignments**  | List all the bindings between roles and users.                                                                                                                                                                                                                                                                            | 
+| **Tokens**            | List all tokens that were issued by users to 3rd party applications.                                                                                                                                                                                                                                                      |
 
 ### Log Events
 
@@ -54,48 +41,27 @@ This Log Events handler collects the following information:<br>
 
 | App                       | Description                                                                                                                                                                                        |
 |---------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **
-access_transparency**   | The Google Workspace Access Transparency contain information about different types of Access Transparency activity events.                                                                         |
-| **
-admin**                    | The Admin console application's contain account information about different types of administrator activity events.                                                                                |
-| **
-calendar**                 | The Google Calendar application's contain information about various Calendar activity events.                                                                                                      |
-| **
-chat**                     | The Chat contain information about various Chat activity events.                                                                                                                                   |
-| **
-drive**                    | The Google Drive application's contain information about various Google Drive activity events. The Drive activity report is only available for Google Workspace Business and Enterprise customers. |
-| **
-gcp**                      | The Google Cloud Platform application's contain information about Interaction with the Cloud OS Login API which are related to GCP.                                                                |
-| **
-gplus**                    | The Google+ application's contain information about various Google+ activity events.                                                                                                               |
-| **
-groups**                   | The Google Groups application's contain information about various Groups activity events.                                                                                                          |
-| **
-groups_enterprise**        | The Enterprise Groups contain information about various Enterprise group activity events.                                                                                                          |
-| **
-jamboard**                 | The Jamboard contain information about various Jamboard activity events.                                                                                                                           |
-| **
-login**                    | The Login application's contain account information about different types of Login activity events.                                                                                                |
-| **
-meet**                     | The Meet Audit activity report returns information about different types of Meet Audit activity events.                                                                                            |
-| **
-mobile**                   | The Device Audit activity report returns information about different types of Device Audit activity events.                                                                                        |
-| **
-rules**                    | The Rules activity report returns information about different types of Rules activity events.                                                                                                      |
-| **
-saml**                     | The SAML activity report returns information about different types of SAML activity events.                                                                                                        |
-| **
-token**                    | The Token application's contain account information about different types of Token activity events.                                                                                                |
-| **
-user_accounts**            | The User Accounts application's contain account information about different types of User Accounts activity events.                                                                                |
-| **
-context_aware_access**     | The Context-aware access contain information about users' access denied events due to Context-aware access rules.                                                                                  |
-| **
-chrome**                   | The Chrome contain information about Chrome browser and Chrome OS events.                                                                                                                          |
-| **
-data_studio**              | The Data Studio contain information about various types of Data Studio activity events.                                                                                                            |
-| **
-keep**                     | The Keep application's contain information about various Google Keep activity events. The Keep activity report is only available for Google Workspace Business and Enterprise customers.           |
+| **access_transparency**   | The Google Workspace Access Transparency contain information about different types of Access Transparency activity events.                                                                         |
+| **admin**                    | The Admin console application's contain account information about different types of administrator activity events.                                                                                |
+| **calendar**                 | The Google Calendar application's contain information about various Calendar activity events.                                                                                                      |
+| **chat**                     | The Chat contain information about various Chat activity events.                                                                                                                                   |
+| **drive**                    | The Google Drive application's contain information about various Google Drive activity events. The Drive activity report is only available for Google Workspace Business and Enterprise customers. |
+| **gcp**                      | The Google Cloud Platform application's contain information about Interaction with the Cloud OS Login API which are related to GCP.                                                                |
+| **gplus**                    | The Google+ application's contain information about various Google+ activity events.                                                                                                               |
+| **groups**                   | The Google Groups application's contain information about various Groups activity events.                                                                                                          |
+| **groups_enterprise**        | The Enterprise Groups contain information about various Enterprise group activity events.                                                                                                          |
+| **jamboard**                 | The Jamboard contain information about various Jamboard activity events.                                                                                                                           |
+| **login**                    | The Login application's contain account information about different types of Login activity events.                                                                                                |
+| **meet**                     | The Meet Audit activity report returns information about different types of Meet Audit activity events.                                                                                            |
+| **mobile**                   | The Device Audit activity report returns information about different types of Device Audit activity events.                                                                                        |
+| **rules**                    | The Rules activity report returns information about different types of Rules activity events.                                                                                                      |
+| **saml**                     | The SAML activity report returns information about different types of SAML activity events.                                                                                                        |
+| **token**                    | The Token application's contain account information about different types of Token activity events.                                                                                                |
+| **user_accounts**            | The User Accounts application's contain account information about different types of User Accounts activity events.                                                                                |
+| **context_aware_access**     | The Context-aware access contain information about users' access denied events due to Context-aware access rules.                                                                                  |
+| **chrome**                   | The Chrome contain information about Chrome browser and Chrome OS events.                                                                                                                          |
+| **data_studio**              | The Data Studio contain information about various types of Data Studio activity events.                                                                                                            |
+| **keep**                     | The Keep application's contain information about various Google Keep activity events. The Keep activity report is only available for Google Workspace Business and Enterprise customers.           |
 
 ### Gmail Configurations & Data
 
@@ -104,32 +70,19 @@ To collect the information, the script delegates each user that has Gmail access
 
 | Function                 | Description                                                                                                                                                                                                                                                          |
 |--------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **
-Threads**              | List of all message threads / conversations, including a short snippet of the messages in each thread. The threads can be retrieved based on a query, and to include/exclude threads in the spam/trash folders.                                                      | 
-| **
-Messages**             | List of all message ids and their matching threads. The messages can be retrieved based on a query, and to include/exclude threads in the spam/trash folders.                                                                                                        | 
-| **Send
-As**              | Lists the send-as aliases for the specified user. The result includes the primary send-as address associated with the account as well as any custom "from" aliases.                                                                                                  | 
-| **
-Delegates**            | Lists the delegates for the specified account. Delegates can read, send, and delete messages, as well as view and add contacts, for the delegator's users.                                                                                                           | 
-| **Auto
-Forwarding**      | List auto-forwarding settings for a user.                                                                                                                                                                                                                            | 
-| **Forwarding
-Addresses** | Lists the forwarding addresses for the specified user.                                                                                                                                                                                                               | 
-| **
-IMAP**                 | List the IMAP settings for an account.                                                                                                                                                                                                                               | 
-| **
-POP**                  | POP settings for an account.                                                                                                                                                                                                                                         | 
-| **
-Labels**               | Lists all labels in the user's mailbox. Labels are used to categorize messages and threads within the user's mailbox. The labels often indicate the folder that a message is found in. Listing labels can give an high-level understanding of the mailbox structure. | 
-| **
-Message**              | Obtain a requested message by its message id.                                                                                                                                                                                                                        | 
-| **
-Thread**               | Obtain a requested thread by its thread id.                                                                                                                                                                                                                          | 
-| **Message
-History**      | Lists a certain change to a given mailbox by its history id. Each Messages has its current history id that indicates the last change that was made to it.                                                                                                            |
-| **Get
-Attachment**       | Gets an attachments from a message by the attachment id and the relevant message id.                                                                                                                                                                                 |
+| **Threads**              | List of all message threads / conversations, including a short snippet of the messages in each thread. The threads can be retrieved based on a query, and to include/exclude threads in the spam/trash folders.                                                      | 
+| **Messages**             | List of all message ids and their matching threads. The messages can be retrieved based on a query, and to include/exclude threads in the spam/trash folders.                                                                                                        | 
+| **SendAs**              | Lists the send-as aliases for the specified user. The result includes the primary send-as address associated with the account as well as any custom "from" aliases.                                                                                                  | 
+| **Delegates**            | Lists the delegates for the specified account. Delegates can read, send, and delete messages, as well as view and add contacts, for the delegator's users.                                                                                                           | 
+| **AutoForwarding**      | List auto-forwarding settings for a user.                                                                                                                                                                                                                            | 
+| **ForwardingAddresses** | Lists the forwarding addresses for the specified user.                                                                                                                                                                                                               | 
+| **IMAP**                 | List the IMAP settings for an account.                                                                                                                                                                                                                               | 
+| **POP**                  | POP settings for an account.                                                                                                                                                                                                                                         | 
+| **Labels**               | Lists all labels in the user's mailbox. Labels are used to categorize messages and threads within the user's mailbox. The labels often indicate the folder that a message is found in. Listing labels can give an high-level understanding of the mailbox structure. | 
+| **Message**              | Obtain a requested message by its message id.                                                                                                                                                                                                                        | 
+| **Thread**               | Obtain a requested thread by its thread id.                                                                                                                                                                                                                          | 
+| **MessageHistory**      | Lists a certain change to a given mailbox by its history id. Each Messages has its current history id that indicates the last change that was made to it.                                                                                                            |
+| **GetAttachment**       | Gets an attachments from a message by the attachment id and the relevant message id.                                                                                                                                                                                 |
 
 ## Usage<hr>
 
@@ -181,34 +134,20 @@ The subparser "all" includes all the modules with no exceptions. <br>
 
 | Function            | Additional Arguments                                                                                                                                                                                           |
 |---------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **
-users**           | X                                                                                                                                                                                                              |
-| **
-deleted_users**   | X                                                                                                                                                                                                              |
-| **
-domains**         | X                                                                                                                                                                                                              |
-| **
-asps**            | --users <br>`The users to acquire information for. applies only for. Multiple values need to be separated by commas (without space). Enter "all" for all users. Example: user1@example.com,user2@example.com`  |
-| **
-chromeosdevices** | X                                                                                                                                                                                                              |
-| **
-customers**       | X                                                                                                                                                                                                              |
-| **
-groups**          | X                                                                                                                                                                                                              |
-| **
-members**         | --groups <br> `The groups to retrieve their members. Multiple values need to be separated by commas (without space). Enter "all" for all groups`                                                               |
-| **
-mobiledevices**   | X                                                                                                                                                                                                              |
-| **
-orgunits**        | X                                                                                                                                                                                                              |
-| **
-roles**           | X                                                                                                                                                                                                              |
-| **
-roleAssignments** | X                                                                                                                                                                                                              |
-| **
-tokens**          | --users <br> `the users to acquire information for. applies only for. Multiple values need to be separated by commas (without space). Enter "all" for all users. Example: user1@example.com,user2@example.com` |
-| **
-all**             | X                                                                                                                                                                                                              |
+| **users**           | X                                                                                                                                                                                                              |
+| **deleted_users**   | X                                                                                                                                                                                                              |
+| **domains**         | X                                                                                                                                                                                                              |
+| **asps**            | --users <br>`The users to acquire information for. applies only for. Multiple values need to be separated by commas (without space). Enter "all" for all users. Example: user1@example.com,user2@example.com`  |
+| **chromeosdevices** | X                                                                                                                                                                                                              |
+| **customers**       | X                                                                                                                                                                                                              |
+| **groups**          | X                                                                                                                                                                                                              |
+| **members**         | --groups <br> `The groups to retrieve their members. Multiple values need to be separated by commas (without space). Enter "all" for all groups`                                                               |
+| **mobiledevices**   | X                                                                                                                                                                                                              |
+| **orgunits**        | X                                                                                                                                                                                                              |
+| **roles**           | X                                                                                                                                                                                                              |
+| **roleAssignments** | X                                                                                                                                                                                                              |
+| **tokens**          | --users <br> `the users to acquire information for. applies only for. Multiple values need to be separated by commas (without space). Enter "all" for all users. Example: user1@example.com,user2@example.com` |
+| **all**             | X                                                                                                                                                                                                              |
 
 #### Log Events Parser
 
@@ -226,8 +165,7 @@ optional arguments:
 
 | Function | Additional Arguments                                                                                                                                                                                                                                                                                                               |
 |----------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **
-logs** | --logs <br> `Enter "all_logs" for all logs. Current supported logs include: ['access_transparency', 'admin', 'calendar', 'chat', 'drive', 'gcp', 'gplus', 'groups','groups_enterprise', 'jamboard', 'login', 'meet', 'mobile', 'rules', 'saml', 'token','user_accounts', 'context_aware_access', 'chrome', 'data_studio', 'keep']` |
+| **logs** | --logs <br> `Enter "all_logs" for all logs. Current supported logs include: ['access_transparency', 'admin', 'calendar', 'chat', 'drive', 'gcp', 'gplus', 'groups','groups_enterprise', 'jamboard', 'login', 'meet', 'mobile', 'rules', 'saml', 'token','user_accounts', 'context_aware_access', 'chrome', 'data_studio', 'keep']` |
 
 #### Gmail Parser
 
@@ -292,24 +230,19 @@ optional arguments:
 
 ### Required Access Scopes
 
-| **Scope**                                                                | **
-Description**                                         |
+| **Scope**                                                                | **Description**                                         |
 |--------------------------------------------------------------------------|---------------------------------------------------------|
 | https://www.googleapis.com/auth/admin.directory.user.readonly            | See info about users on your domain |
 | https://www.googleapis.com/auth/admin.directory.domain.readonly          | View domains related to your customers |
-| https://www.googleapis.com/auth/admin.directory.user.security            | Manage data access permissions for users on
-your domain |
+| https://www.googleapis.com/auth/admin.directory.user.security            | Manage data access permissions for users on your domain |
 | https://www.googleapis.com/auth/admin.directory.device.chromeos.readonly | View your ChromeOS devices' metadata |
 | https://www.googleapis.com/auth/admin.directory.customer.readonly        | View customer related information |
 | https://www.googleapis.com/auth/admin.directory.group.readonly           | View groups on your domain |
 | https://www.googleapis.com/auth/admin.directory.device.mobile.readonly   | View your mobile devices' metadata |
 | https://www.googleapis.com/auth/admin.directory.orgunit.readonly         | View organization units on your domain |
-| https://www.googleapis.com/auth/admin.directory.rolemanagement.readonly  | View delegated admin roles for your domain
-|
-| https://www.googleapis.com/auth/admin.reports.audit.readonly             | View audit reports for your Google
-Workspace domain |
-| https://www.googleapis.com/auth/admin.reports.usage.readonly             | View usage reports for your Google
-Workspace domain |
+| https://www.googleapis.com/auth/admin.directory.rolemanagement.readonly  | View delegated admin roles for your domain|
+| https://www.googleapis.com/auth/admin.reports.audit.readonly             | View audit reports for your Google Workspace domain |
+| https://www.googleapis.com/auth/admin.reports.usage.readonly             | View usage reports for your Google Workspace domain |
 | https://www.googleapis.com/auth/gmail.readonly                           | View your email messages and settings |
 
 ### Required APIs
