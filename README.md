@@ -33,6 +33,14 @@ reference [Assistant documentation](./Assistant/README.md).
 
 To collect evidence from Google Cloud, reference [Collector documentation](./Collectors/README.md).
 
-## Demo<hr>
+## Authors & Contributors<hr>
 
-Link to Sygnia's webinar recording will be provided soon!
+### Authors
+
+- Itay Angi (@NG-Syg)
+- Wesley Guerra (@wrguerra)
+
+### Contributors
+
+- @yogevyuval - Provided code review.
+- @yuvalmarciano - Provided code review.
