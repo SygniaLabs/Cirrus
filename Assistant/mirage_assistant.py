@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 GCP Cloud Shell script to automate the setup and cleanup of a Google Cloud environment in preparation for and
-resulting from, use of the Cirrus Google Cloud Platform (GCP) and Google Workspaces (GW) collectors.
+resulting from, use of the Mirage Google Cloud Platform (GCP) and Google Workspaces (GW) collectors.
 
 Inspired by the Google project "create-service-account", the 'setup' subcommand of the script automates the steps
 required for obtaining a service account key. How this script affects a Google environment will vary depending
@@ -33,8 +33,8 @@ PROJECT_NAME = "sir"  # Name of project created in GCP environment (datetime app
 # Tool & Validation constants
 SERVICE_ACCT_NAME = f"{PROJECT_NAME}-service-account"  # Name of service account generated in project
 VERSION = "1"
-TOOL_NAME = "cirrus_assistant"
-TOOL_NAME_FRIENDLY = "Cirrus Assistant"
+TOOL_NAME = "mirage_assistant"
+TOOL_NAME_FRIENDLY = "Mirage Assistant"
 USER_AGENT = f"create_service_account_v{VERSION}"
 PROJECT_NAME_PATT = r'^[a-z0-9]{1,10}$'
 
@@ -50,7 +50,7 @@ ID_FILE = os.path.join(DEFAULT_OUTPUT_FOLDER, 'project_id')
 ROLE_BINDINGS_FILE = os.path.join(DEFAULT_OUTPUT_FOLDER, 'role_bindings_tracker')
 UNDELETED_ID_FILE = os.path.join(RUNNING_DIRECTORY, 'undeleted_project_id')
 UNDELETED_ROLE_BINDINGS_FILE = os.path.join(RUNNING_DIRECTORY, 'undeleted_role_bindings')
-TROUBLESHOOTING_LOG_FILE = 'cirrus_assistant.log'
+TROUBLESHOOTING_LOG_FILE = 'mirage_assistant.log'
 TROUBLESHOOTING_LOG_FILE_PATH = os.path.join(RUNNING_DIRECTORY, f'{TROUBLESHOOTING_LOG_FILE}')
 KEY_FILE = os.path.join(RUNNING_DIRECTORY, f"{TOOL_NAME.lower()}-service-account-key-"
                                            f"{datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')}.json")
@@ -90,7 +90,7 @@ def change_me_section_check() -> None:
 
 def get_arguments() -> (argparse.ArgumentParser, argparse.Namespace):
     """Creates the argparse and processes the command-line arguments"""
-    parser = argparse.ArgumentParser('cirrus_assistant.py',
+    parser = argparse.ArgumentParser('mirage_assistant.py',
                                      description='Prepare a Google Cloud environment for incident response.')
     mode_subparser = parser.add_subparsers(dest='mode',
                                            help='specify the Google Cloud environment configuration mode',
@@ -852,7 +852,7 @@ def init_logger(args: argparse.Namespace) -> None:
 
 
 async def start_setup(parser: argparse.ArgumentParser, args: argparse.Namespace) -> None:
-    """Starts the setup required for Cirrus. The setup mainly involves the following steps:
+    """Starts the setup required for Mirage. The setup mainly involves the following steps:
     1. creates a project to work in
     2. verify terms of service are accepted
     3. enables relevant apis
@@ -944,7 +944,7 @@ async def start_setup(parser: argparse.ArgumentParser, args: argparse.Namespace)
 
 
 async def start_cleanup(args):
-    """Starts the cleanup process after Cirrus is no longer needed. The setup mainly involves the following steps
+    """Starts the cleanup process after Mirage is no longer needed. The setup mainly involves the following steps
 
     @param args: the argparse arguments after being parsed
     """

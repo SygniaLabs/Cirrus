@@ -1,8 +1,8 @@
-# Cirrus - Google Cloud Platform Collector
+# Mirage - Google Cloud Platform Collector
 
 ## Capabilities<hr>
 
-Cirrus Google Cloud Platform (GCP) Collector is a command-line tool written in Python that utilizes REST APIs
+Mirage Google Cloud Platform (GCP) Collector is a command-line tool written in Python that utilizes REST APIs
 to collect forensic artifacts from GCP for incident response, threat hunting, and increasing security posture. The
 script
 collections log and configuration data:
@@ -70,14 +70,14 @@ all_configs |
 To execute the script, we need to have a service account key that has been authorized with the appropriate IAM roles
 at the correct resource levels. If you plan to collect forensic artifacts across the entire domain, you will need the
 appropriate IAM roles at the organizational level. APIs also need to be enabled in the service account parent project.
-We recommend using the [Cirrus Assistant](../../../Assistant/README.md) script to facilitate access to a Google Cloud
+We recommend using the [Mirage Assistant](../../../Assistant/README.md) script to facilitate access to a Google Cloud
 environment, however the
 required roles and APIs can be found in Appendix A in case manual setup is desired.
 
 ### Main Parser
 
 ```
-usage: cirrus.py gcp [-h] [--key-file KEY_FILE] [--output OUTPUT] [--log-file LOG_FILE] logs, configurations ...
+usage: mirage.py gcp [-h] [--key-file KEY_FILE] [--output OUTPUT] [--log-file LOG_FILE] logs, configurations ...
 
 Google Cloud Platform forensics collection tool
 
@@ -96,7 +96,7 @@ modules:
 #### Log Collection Parser
 
 ```
-usage: cirrus.py gcp [...] logs [-h] [--logs LOGS] [--project-id PROJECT_ID] [--folder-id FOLDER_ID] [--organization-id ORGANIZATION_ID] [--start-time START_TIME] [--end-time END_TIME] [--preview] 
+usage: mirage.py gcp [...] logs [-h] [--logs LOGS] [--project-id PROJECT_ID] [--folder-id FOLDER_ID] [--organization-id ORGANIZATION_ID] [--start-time START_TIME] [--end-time END_TIME] [--preview] 
 [--custom-logs CUSTOM_LOGS]
 
 optional arguments:
@@ -120,25 +120,25 @@ optional arguments:
 Example of collecting one week of Admin Activity and Data Access logs in one project:
 
 ```
-./cirrus.py gcp --key-file creds.json logs --project-id PID1 --logs admin_activity,data_access --start-time 2022-10-01T00:00:00Z --end-time 2022-10-08T00:00:00Z
+./mirage.py gcp --key-file creds.json logs --project-id PID1 --logs admin_activity,data_access --start-time 2022-10-01T00:00:00Z --end-time 2022-10-08T00:00:00Z
 ```
 
 Example of collecting one month of all logs in two projects, two folders, and in the organization resource:
 
 ```
-./cirrus.py gcp --key-file creds.json logs --project-id PID1,PID2 --folder-id FID1,FID2 --organization-id OID --logs all_logs --start-time 2022-10-01T00:00:00Z --end-time 2022-11-01T00:00:00Z
+./mirage.py gcp --key-file creds.json logs --project-id PID1,PID2 --folder-id FID1,FID2 --organization-id OID --logs all_logs --start-time 2022-10-01T00:00:00Z --end-time 2022-11-01T00:00:00Z
 ```
 
 Example of collecting one day of two custom logs in a single project:
 
 ```
-./cirrus.py gcp --key-file creds.json logs --project-id PID1 --custom-log custom_app6_retro,custom_app7_pixel --start-time 2022-06-19T00:00:00Z --end-time 2022-06-20T00:00:00Z
+./mirage.py gcp --key-file creds.json logs --project-id PID1 --custom-log custom_app6_retro,custom_app7_pixel --start-time 2022-06-19T00:00:00Z --end-time 2022-06-20T00:00:00Z
 ```
 
 Example of collecting one day of both preconfigured logs and a single custom log across three projects:
 
 ```
-./cirrus.py gcp --key-file creds.json logs --project-id PID1,PID2,PID3 --logs admin_activity,load_balancer --custom-log custom_app9_audit --start-time 2022-11-18T00:00:00Z --end-time 2022-11-19T00:00:00Z
+./mirage.py gcp --key-file creds.json logs --project-id PID1,PID2,PID3 --logs admin_activity,load_balancer --custom-log custom_app9_audit --start-time 2022-11-18T00:00:00Z --end-time 2022-11-19T00:00:00Z
 ```
 
 #### Log Preview
@@ -160,19 +160,19 @@ Example [log preview output](./example_log_preview_output.png).
 Example of previewing available logs in one project:
 
 ```
-./cirrus.py gcp --key-file creds.json logs --project-id PID1 --preview
+./mirage.py gcp --key-file creds.json logs --project-id PID1 --preview
 ```
 
 Example of previewing available logs in multiple projects, folders, and organization:
 
 ```
-./cirrus.py gcp --key-file creds.json logs --project-id PID1,PID2,PID3 --folder-id FID1,FID2 --organization-id OID --preview
+./mirage.py gcp --key-file creds.json logs --project-id PID1,PID2,PID3 --folder-id FID1,FID2 --organization-id OID --preview
 ```
 
 #### Configurations Collection Parser
 
 ```
-usage: cirrus.py gcp [...] configurations [-h] --configs CONFIGS [--project-id PROJECT_ID] [--folder-id FOLDER_ID] [--organization-id ORGANIZATION_ID]
+usage: mirage.py gcp [...] configurations [-h] --configs CONFIGS [--project-id PROJECT_ID] [--folder-id FOLDER_ID] [--organization-id ORGANIZATION_ID]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -188,19 +188,19 @@ optional arguments:
 Example of collecting service account information against two projects:
 
 ```
-./cirrus.py gcp --key-file creds.json configurations --project-id PID1,PID2 --configs sa_details,sa_key_details
+./mirage.py gcp --key-file creds.json configurations --project-id PID1,PID2 --configs sa_details,sa_key_details
 ```
 
 Example of collecting all role bindings of all resources under one folder:
 
 ```
-./cirrus.py gcp --key-file creds.json configurations --folder-id FID1 --configs rb_map
+./mirage.py gcp --key-file creds.json configurations --folder-id FID1 --configs rb_map
 ```
 
 Example of collecting a resource hierarchy map, role bindings, and service account information against an organization:
 
 ```
-./cirrus.py gcp --key-file creds.json configurations --organization-id OID --configs all_configs
+./mirage.py gcp --key-file creds.json configurations --organization-id OID --configs all_configs
 ```
 
 ## Troubleshooting<hr>

@@ -1,14 +1,14 @@
-# Cirrus - Assistant
+# Mirage - Assistant
 
 ## Overview<hr>
 
-The Cirrus Assistant is a command-line tool that provides scalable access to a Google Cloud
+The Mirage Assistant is a command-line tool that provides scalable access to a Google Cloud
 environment. Based on the Google project [create-service-account](https://github.com/google/create-service-account),
-Cirrus Assistant automates all steps required for obtaining a service account key file with the required permissions and
+Mirage Assistant automates all steps required for obtaining a service account key file with the required permissions and
 access for evidence acquisition. The generated service account key can then be used to programmatically access
 data in Google Cloud. This script has been designed for seamless integration with
-the [Cirrus Collector](../Collectors/README.md).
-Cirrus Assistance has to be executed in [Google Cloud Shell](https://shell.cloud.google.com/) after authenticating as a
+the [Mirage Collector](../Collectors/README.md).
+Mirage Assistance has to be executed in [Google Cloud Shell](https://shell.cloud.google.com/) after authenticating as a
 super admin.
 
 ## Capabilities<hr>
@@ -16,7 +16,7 @@ super admin.
 ### Setup Mode
 
 Setup mode automates all steps required to obtain a service account key with relevant IAM role bindings or
-OAuth access scopes. The service account key can be used with Cirrus Collector to collect forensic artifacts. The
+OAuth access scopes. The service account key can be used with Mirage Collector to collect forensic artifacts. The
 following steps are accomplished by Assistant during setup:
 
 1. Create a project in GCP under the organization resource
@@ -40,13 +40,13 @@ following steps are accomplished by Assistant during cleanup:
 
 ### Prerequisites
 
-Cirrus Assistant has been designed for ease of use. Simply download the script file, authenticate to an appropriately
+Mirage Assistant has been designed for ease of use. Simply download the script file, authenticate to an appropriately
 privileged domain-managed user account, upload the script to Google Cloud Shell, and execute. There is no need
 to install anything, as all dependencies are handled by the Google Cloud Shell.
 
 ### Installation & Quick Start
 
-1. Download `cirrus_assistant.py`
+1. Download `mirage_assistant.py`
 2. Change the variable `PROJECT_NAME` at top of script or leave default. The variable should contain letters and/or
    numbers and should be no longer than 10 characters. <br>This name indicates the name of the new isolated project that
    the script will work from.
@@ -61,13 +61,13 @@ to install anything, as all dependencies are handled by the Google Cloud Shell.
        the `resourcemanager.{resource}.setIamPolicy` permission against resource(s) targeted for collection (
        where `resource` is either `projects`, `folders`, or `organizations`)
 4. Create a folder within the user home directory in Cloud Shell
-5. Upload `cirrus_assistant.py` to folder in Cloud Shell via option provided from three vertical dots in right corner
+5. Upload `mirage_assistant.py` to folder in Cloud Shell via option provided from three vertical dots in right corner
 6. Specify mode (`setup`/`cleanup`), service (`gw`/`gcp`/`all`), associated flags, and execute script
 
 ### Environment Setup
 
 ```
-usage: cirrus.py setup [-h] [--service SERVICE] [--project-id PROJECT_ID] [--folder-id FOLDER_ID] [--organization-id ORGANIZATION_ID]
+usage: mirage.py setup [-h] [--service SERVICE] [--project-id PROJECT_ID] [--folder-id FOLDER_ID] [--organization-id ORGANIZATION_ID]
 optional arguments:
   -h, --help            show this help message and exit
   --service SERVICE     specify a Google Cloud service to prepare for evidence collection: [gcp, gw, all]
@@ -82,27 +82,27 @@ optional arguments:
 To prepare the environment for artifact collection *only* in Google Workspace or Cloud Identity:
 
 ```
-python3 cirrus_assistant.py setup --service gw
+python3 mirage_assistant.py setup --service gw
 ```
 
 The script can specify access to the entire organization, multiple projects and folders, or selected resources.
 To prepare the environment for artifact collection *only* in GCP against three projects and two folders:
 
 ```
-python3 cirrus_assistant.py setup --service gcp --project-id PID1,PID2,PID3 --folder-id FID1,FID2
+python3 mirage_assistant.py setup --service gcp --project-id PID1,PID2,PID3 --folder-id FID1,FID2
 ```
 
 To prepare the environment for artifact collection in both Google Workspace or Cloud Identity, and GCP at the
 organization-level:
 
 ```
-python3 cirrus_assistant.py setup --service all --organization-id OID
+python3 mirage_assistant.py setup --service all --organization-id OID
 ```
 
 ### Environment Cleanup
 
 ```
-usage: cirrus_assistant.py cleanup [-h] [--service SERVICE]
+usage: mirage_assistant.py cleanup [-h] [--service SERVICE]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -112,17 +112,17 @@ optional arguments:
 To remove all traces of activity that occurred during setup for Google Workspace or Cloud Identity:
 
 ```
-python3 cirrus_assistant.py cleanup --service gw
+python3 mirage_assistant.py cleanup --service gw
 ```
 
 To remove all traces of activity that occurred during setup for GCP:
 
 ```
-python3 cirrus_assistant.py cleanup --service gcp
+python3 mirage_assistant.py cleanup --service gcp
 ```
 
 To remove all traces of activity during occurred during setup for both Google Workspace or Cloud Identity and GCP:
 
 ```
-python3 cirrus_assistant.py cleanup --service all
+python3 mirage_assistant.py cleanup --service all
 ```

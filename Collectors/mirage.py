@@ -9,9 +9,9 @@ def arg_error():
     print(
         'Please enter "gw" (Google Workspace/Cloud Identity) or "gcp" (Google Cloud Platform) to choose one of the collectors.')
     print('Usage examples:')
-    print('\tcirrus.py gw --key-file /path/to/creds.json --super-admin admin@example.com --override-cache all')
+    print('\tmirage.py gw --key-file /path/to/creds.json --super-admin admin@example.com --override-cache all')
     print(
-        '\tcirrus.py gcp --key-file /path/to/creds.json logs --project-id test-project-12345 --logs all_logs --start-time 2022-01-01T00:00:00Z --end-time 2022-01-08T00:00:00Z')
+        '\tmirage.py gcp --key-file /path/to/creds.json logs --project-id test-project-12345 --logs all_logs --start-time 2022-01-01T00:00:00Z --end-time 2022-01-08T00:00:00Z')
 
 
 def main():

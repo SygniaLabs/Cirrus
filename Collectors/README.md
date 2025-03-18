@@ -1,12 +1,12 @@
-# Cirrus - Collector
+# Mirage - Collector
 
 ## Overview<hr>
 
-Cirrus Collector gathers forensic artifacts across a Google Cloud environment.
+Mirage Collector gathers forensic artifacts across a Google Cloud environment.
 
 ## Capabilities<hr>
 
-Cirrus Collector is a wrapper script that encloses two separate modules:
+Mirage Collector is a wrapper script that encloses two separate modules:
 
 1. **Google Workspace/Cloud Identity Collector**
 2. **Google Cloud Platform (GCP) Collector**
@@ -15,20 +15,20 @@ Cirrus Collector is a wrapper script that encloses two separate modules:
 
 ### Prerequisites
 
-- Cirrus Collector supports and was tested with **Python3**
+- Mirage Collector supports and was tested with **Python3**
 
 ### Installation & Quick Start
 
 1. Clone repository
 2. (Optional) Set up virtual environment
 3. Install dependencies
-4. Obtain service account key file (via [Cirrus Assistant](../Assistant/README.md) or other method)
+4. Obtain service account key file (via [Mirage Assistant](../Assistant/README.md) or other method)
 5. Specify Google Workspace (`gw`) or Google Cloud Platform (`gcp`), associated flags, and execute script
 
 ```
 Usage examples:
-        cirrus.py gw --key-file /path/to/creds.json --super-admin admin@example.com --override-cache all
-        cirrus.py gcp --key-file /path/to/creds.json logs --project-id test-project-1,test-project-2 --logs all_logs --start-time 2022-01-01T00:00:00Z --end-time 2022-01-08T00:00:00Z
+        mirage.py gw --key-file /path/to/creds.json --super-admin admin@example.com --override-cache all
+        mirage.py gcp --key-file /path/to/creds.json logs --project-id test-project-1,test-project-2 --logs all_logs --start-time 2022-01-01T00:00:00Z --end-time 2022-01-08T00:00:00Z
 ```
 
 ### Google Workspace Collector
@@ -45,4 +45,4 @@ visit [reference documentation](./Collectors/collectors/gcp/README.md).
 
 The collectors were developed and tested using Python v3.9.
 The collectors can be executed from both standalone machines or directly from Google Cloud Shell as the
-Cirrus Assistant.  
+Mirage Assistant.  
