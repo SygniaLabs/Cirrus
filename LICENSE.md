@@ -1,7 +1,7 @@
-**Cirrus -- Terms of Use**
+**Mirage -- Terms of Use**
 
 These Terms of Use (the "**Terms**") apply to and govern the access and
-use of the Cirrus (the "**Tool**") which is provided by SYGNIA
+use of the Mirage (the "**Tool**") which is provided by SYGNIA
 Consulting Ltd. (the "**Company**") through its website and/or other
 public repositories such as GitHub (the "**Website**"). These Terms
 constitute an agreement (the "**Agreement**") between the Company and
@@ -16,8 +16,8 @@ CONDITIONS, YOU SHOULD NOT ACCESS OR USE THE TOOL.
 
 1. THE TOOL
 
-    1. The tool, which comprises of two scripts: "cirrus\_assistant.py"
-       and "cirrus.py", expands visibility and provide a comprehensive
+    1. The tool, which comprises of two scripts: "mirage\_assistant.py"
+       and "mirage.py", expands visibility and provide a comprehensive
        analysis over Google cloud environment by gathering logs and
        settings from Google Cloud Platform and Google Workspace.
 

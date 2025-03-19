@@ -7,7 +7,7 @@ from ..shared.shared_utils import DEFAULT_LOG_FILE, Validators
 class Parser:
     def __init__(self):
         # Main parser
-        self.parser = ArgumentParser('cirrus.py gw',
+        self.parser = ArgumentParser('mirage.py gw',
                                      description='Google Workspace and Cloud Identity forensic collection tool')
         self.subparsers = self.parser.add_subparsers(title='modules', required=True, dest='module',
                                                      metavar='logs, admin_directory, gmail, all')

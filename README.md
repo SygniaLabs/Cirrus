@@ -1,19 +1,19 @@
-# Cirrus - Google Cloud Forensic Collection
+# Mirage - Google Cloud Forensic Collection
 
-![cirrus_image](./cirrus.png)
+![mirage_image](./mirage.jpg)
 
 ## Overview<hr>
 
-Cirrus is a command-line tool written in Python to facilitate environment access and evidence collection across
-Google Cloud. Cirrus has been designed to support incident response and threat hunting operations. Sygnia
-created Cirrus and an associated blog
+Mirage is a command-line tool written in Python to facilitate environment access and evidence collection across
+Google Cloud. Mirage has been designed to support incident response and threat hunting operations. Sygnia
+created Mirage and an associated blog
 series ([Foundations](https://blog.sygnia.co/incident-response-in-google-cloud-foundations)
 & [Forensic Artifacts](https://blog.sygnia.co/incident-response-in-google-cloud-forensic-artifacts)) to help solve gaps
 with incident response in Google Cloud.
 
 ## Capabilities<hr>
 
-Cirrus is composed of two scripts:
+Mirage is composed of two scripts:
 
 1. **Assistant**: automate Google Cloud access setup and cleanup
 2. **Collector**: collect log, configuration, and user data

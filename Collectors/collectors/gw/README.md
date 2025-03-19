@@ -1,8 +1,8 @@
-# Cirrus - Google Workspace Collector
+# Mirage - Google Workspace Collector
 
 ## Capabilities<hr>
 
-Cirrus Google Workspace Collector is a command-line tool written in Python that utilizes REST APIs
+Mirage Google Workspace Collector is a command-line tool written in Python that utilizes REST APIs
 to collect forensic artifacts from Google Workspace or Cloud Identity for incident response, threat hunting, and
 increasing security posture. The script collects configurations, logs, and data.
 
@@ -90,14 +90,14 @@ To collect the information, the script delegates each user that has Gmail access
 
 To execute the script, we need to have a service account key authorized with the appropriate access scopes. APIs also
 need to be enabled in the
-service account parent project. We recommend using the [Cirrus Assistant](../../../Assistant/README.md) script to
+service account parent project. We recommend using the [Mirage Assistant](../../../Assistant/README.md) script to
 facilitate access to a Google Cloud
 environment, however the required access scopes and APIs can be found in Appendix A in case manual setup is desired.
 
 ### Main Parser
 
 ```
-usage: cirrus.py gw [-h] --key-file KEY_FILE [--output OUTPUT] [--log-file LOG_FILE] [--override-cache] --super-admin SUPER_ADMIN logs, admin_directory, gmail, all ...
+usage: mirage.py gw [-h] --key-file KEY_FILE [--output OUTPUT] [--log-file LOG_FILE] [--override-cache] --super-admin SUPER_ADMIN logs, admin_directory, gmail, all ...
 
 Google Workspace and Cloud Identity forensic collection tool
 
@@ -121,7 +121,7 @@ modules:
 #### Admin Directory Parser
 
 ```
-usage: cirrus.py gw [...] admin_directory [-h] {all,users,deleted_users,domains,asps,chromeosdevices,customers,groups,members,mobiledevices,orgunits,roles,roleAssignments,tokens} ...
+usage: mirage.py gw [...] admin_directory [-h] {all,users,deleted_users,domains,asps,chromeosdevices,customers,groups,members,mobiledevices,orgunits,roles,roleAssignments,tokens} ...
 
 positional arguments:
   {all,users,deleted_users,domains,asps,chromeosdevices,customers,groups,members,mobiledevices,orgunits,roles,roleAssignments,tokens}
@@ -152,7 +152,7 @@ The subparser "all" includes all the modules with no exceptions. <br>
 #### Log Events Parser
 
 ```
-usage: cirrus.py gw [...] logs [-h] --logs LOGS --users USERS [--start-time START_TIME] [--end-time END_TIME]
+usage: mirage.py gw [...] logs [-h] --logs LOGS --users USERS [--start-time START_TIME] [--end-time END_TIME]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -170,7 +170,7 @@ optional arguments:
 #### Gmail Parser
 
 ```
-usage: cirrus.py gw [...] gmail [-h] --users USERS {all,threads,thread,messages,message,message_history,send_as,delegates,auto_forwarding,forwarding_addresses,imap,pop,labels,get_attachment} ...
+usage: mirage.py gw [...] gmail [-h] --users USERS {all,threads,thread,messages,message,message_history,send_as,delegates,auto_forwarding,forwarding_addresses,imap,pop,labels,get_attachment} ...
 
 positional arguments:
   {all,threads,thread,messages,message,message_history,send_as,delegates,auto_forwarding,forwarding_addresses,imap,pop,labels,get_attachment}
@@ -206,7 +206,7 @@ This parser is used in order to run all the features for all users in Admin Dire
 and selected Gmail settings (as mentioned in the gmail paser section above).
 
 ```
-usage: cirrus.py [...] gw all [-h]
+usage: mirage.py [...] gw all [-h]
 
 optional arguments:
   -h, --help  show this help message and exit
@@ -247,7 +247,7 @@ optional arguments:
 
 ### Required APIs
 
-Use of the Cirrus Workspace Collector requires that the Admin SDK and Gmail APIs are enabled in the service account
+Use of the Mirage Workspace Collector requires that the Admin SDK and Gmail APIs are enabled in the service account
 parent project.
 The API can be enabled via GCloud:
 

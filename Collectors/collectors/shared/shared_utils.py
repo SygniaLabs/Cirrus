@@ -15,7 +15,7 @@ DEFAULT_CACHE_FOLDER = os.path.realpath(os.path.join(RUNNING_DIRECTORY, 'cache')
 
 class FileHandler:
     """
-    Class FileHandler handles writing API results to Cirrus output folder and update the log file
+    Class FileHandler handles writing API results to Mirage output folder and update the log file
     """
 
     def __init__(self, folder: str, log_file: str, cmdline: str):
@@ -23,7 +23,7 @@ class FileHandler:
         Creates a FileHandler object while initializing the output folder and the log file
         @param folder: the folder to place the API outputs (results) in
         @param log_file: the path to the log file to document the results
-        @param cmdline: The command line that was given to Cirrus, used only for documentation purposes in the log file
+        @param cmdline: The command line that was given to Mirage, used only for documentation purposes in the log file
         """
 
         self.folder = folder if folder is not None else DEFAULT_OUTPUT_FOLDER
