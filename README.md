@@ -1,6 +1,6 @@
 # Mirage - Google Cloud Forensic Collection
 
-![mirage_image](./mirage.png)
+![mirage_image](./mirage.jpg)
 
 ## Overview<hr>
 
